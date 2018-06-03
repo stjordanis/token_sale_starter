@@ -21,10 +21,7 @@ module.exports = function(deployer, network, accounts) {
       )
     })
     .then(async () => {
-      console.log('token 1')
       const token = await Token.deployed()
-      console.log('token')
-      console.log(token)
       console.log(`Token address: ${chalk.green(token.address)}`)
     })
 

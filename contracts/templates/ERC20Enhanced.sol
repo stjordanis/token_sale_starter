@@ -1,7 +1,7 @@
 pragma solidity ^0.4.23;
 
 
-contract ERC20Enhanced {
+contract IERC20Enhanced {
 
     mapping(address => uint) balances;
     mapping(address => mapping(address => uint)) internal allowed;
@@ -13,7 +13,6 @@ contract ERC20Enhanced {
     function balanceOf(address who) public view returns (uint);
     function transfer(address to, uint tokens) public returns (bool);
     function totalSupply() public view returns (uint);
-    function migrate(address[] _recipients) public view returns (bool);
     event Transfer(address indexed from, address indexed to, uint value);
     event Approval(address indexed owner, address indexed spender, uint value);
 

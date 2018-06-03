@@ -42,7 +42,18 @@ truffle test
 2. Launch the dApp and set the crowdsale parameters.
 3. Set the whitelisting requirement (if so, you'll need to add each buyer to whitelist before the sale).
 
-## Migrate to Main Contract
+## Buys from other blockchains
+
+You can sell tokens for any cryptocurrency. First, you need to set up "bot" address, which will manage this trade 
+querying (isn't done by this package) your chains' addresses and calling following crowdale function:
+
+```
+foreignBuy(address _recipient, uint _tokens, string _txHash)
+```
+
+## Migrate Tokens to  Main Contract
+
+This is modular contract/dApp, which meant to migrate token holders to main contract after a sale.
 
 1. Set the bot address
 

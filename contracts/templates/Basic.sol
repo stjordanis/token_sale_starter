@@ -4,7 +4,10 @@ import "./SafeMath.sol";
 import "./ERC20Enhanced.sol";
 
 
-contract Basic is ERC20Enhanced {
+contract Basic is IERC20Enhanced {
+
+
+    using SafeMath for uint;
 
     bool public transfersNotAllowed = true;
 
@@ -26,8 +29,8 @@ contract Basic is ERC20Enhanced {
         require(transfersNotAllowed == false);
         require(_tokens <= balances[msg.sender] && _tokens > 0);
 
-        balances[msg.sender] = SafeMath.sub(balances[msg.sender], _tokens);
-        balances[_to] = SafeMath.add(balances[_to], _tokens);
+        balances[msg.sender] = balances[msg.sender].sub(_tokens);
+        balances[_to] = balances[_to].add(_tokens);
         emit Transfer(msg.sender, _to, _tokens);
         return true;
     }
@@ -43,9 +46,9 @@ contract Basic is ERC20Enhanced {
         require(_tokens <= balances[_from]);
         require(_tokens <= allowed[_from][msg.sender]);
 
-        balances[_from] = SafeMath.sub(balances[_from], _tokens);
-        allowed[_from][msg.sender] = SafeMath.sub(allowed[_from][msg.sender], _tokens);
-        balances[_to] = SafeMath.add(balances[_to], _tokens);
+        balances[_from] = balances[_from].sub(_tokens);
+        allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_tokens);
+        balances[_to] = balances[_to].add(_tokens);
         emit Transfer(_from, _to, _tokens);
         return true;
     }
