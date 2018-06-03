@@ -51,7 +51,7 @@ contract Basic is ERC20Enhanced {
     }
 
     function totalSupply() public view returns (uint) {
-        return _totalSupply - balances[address(0)];
+        return _totalSupply;
     }
 
 }

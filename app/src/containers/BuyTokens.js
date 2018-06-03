@@ -13,7 +13,7 @@ import ListItem  from 'grommet/components/ListItem'
 import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
 
-import env from '../env'
+import env from 'env'
 
 class BuyIcoTokens extends PureComponent {
   constructor(props) {
@@ -60,7 +60,7 @@ class BuyIcoTokens extends PureComponent {
   handleSubmit(event) {
     event.preventDefault()
 
-    this.props.Crowdsale.deployed().then(async (crowdsale) => {
+    this.props.Token.deployed().then(async (crowdsale) => {
       if (this.state.amountEth > env.MINIMUM_CONTRIBUTION && Web3Utils.isAddress(this.props.account)) {
         const _gas = await this.props.web3.web3.eth.estimateGas({
           from: this.props.account,
@@ -157,7 +157,7 @@ class BuyIcoTokens extends PureComponent {
 
 function mapStateToProps(state) {
   return {
-    Crowdsale: state.Crowdsale,
+    Token: state.Token,
     account: state.account,
     web3: state.web3,
     gasPrice: state.gasPrice

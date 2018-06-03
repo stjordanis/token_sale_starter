@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+
 import Toast from 'grommet/components/Toast'
 import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
@@ -40,7 +41,7 @@ class TransferOwnership extends Component {
       failure: ''
     })
 
-    this.props.Crowdsale.deployed().then(async (crowdsale) => {
+    this.props.Token.deployed().then(async (crowdsale) => {
       if (this.state.to != null) {
         const _gas = await crowdsale.transferOwnership.estimateGas(this.state.to)
         crowdsale.transferOwnership(this.state.to, { from: this.props.account, gas: _gas, gasPrice: this.props.gasPrice })
@@ -102,7 +103,7 @@ class TransferOwnership extends Component {
 
 function mapStateToProps(state) {
   return {
-    Crowdsale: state.Crowdsale,
+    Token: state.Token,
     account: state.account,
     web3: state.web3,
     gasPrice: state.gasPrice

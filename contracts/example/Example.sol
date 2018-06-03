@@ -1,7 +1,7 @@
 pragma solidity ^0.4.23;
 
 import "../interfaces/ICrowdsale.sol";
-import "../templates/ownable.sol";
+import "../templates/Ownable.sol";
 
 
 contract Example is Ownable {

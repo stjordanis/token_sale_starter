@@ -9,11 +9,8 @@ import Table from 'grommet/components/Table'
 import TableHeader from 'grommet/components/TableHeader'
 import TableRow from 'grommet/components/TableRow'
 
-import env from '../../env'
+import env from 'env'
 
-/*
-@TODO highlight own address
-*/
 class RecentTransactions extends Component {
   constructor(props) {
     super(props)
@@ -31,7 +28,7 @@ class RecentTransactions extends Component {
 
   fetchTransactions() {
     this.props.web3.web3.eth.getBlockNumber((latestBlock) => {
-      this.props.Crowdsale.deployed().then((crowdsale) => {
+      this.props.Token.deployed().then((crowdsale) => {
         crowdsale.allEvents({ fromBlock: 0, toBlock: 'latest' })
           .watch((error, event) => {
             if (error) {
@@ -96,7 +93,7 @@ class RecentTransactions extends Component {
 
 function mapStateToProps(state) {
   return {
-    Crowdsale: state.Crowdsale,
+    Token: state.Token,
     web3: state.web3,
     account: state.account
   }

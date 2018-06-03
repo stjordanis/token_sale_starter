@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import web3utils from 'web3-utils'
+
 import Toast from 'grommet/components/Toast'
 import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
@@ -7,7 +9,6 @@ import TextInput from 'grommet/components/TextInput'
 import Button from 'grommet/components/Button'
 import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
-import web3utils from 'web3-utils'
 
 class AddToWhitelist extends Component {
   constructor() {
@@ -41,7 +42,7 @@ class AddToWhitelist extends Component {
 
   getWhitelistStatus() {
     if (web3utils.isAddress(this.state.toWhitelist)) {
-      this.props.Crowdsale.deployed().then((token) => {
+      this.props.Token.deployed().then((token) => {
         token.getWhitelistStatus(this.state.toWhitelist, { from: this.props.account }).then((res) => {
           this.setState({
             status: res,
@@ -62,7 +63,7 @@ class AddToWhitelist extends Component {
   handleSubmit(event) {
     event.preventDefault()
 
-    this.props.Crowdsale.deployed().then(async (token) => {
+    this.props.Token.deployed().then(async (token) => {
       if (web3utils.isAddress(this.state.toWhitelist)) {
         const _gas = await token.addToWhitelist.estimateGas(this.state.toWhitelist)
         token.addToWhitelist(this.state.toWhitelist, {
@@ -133,7 +134,7 @@ class AddToWhitelist extends Component {
 function mapStateToProps(state) {
   return {
     web3: state.web3,
-    Crowdsale: state.Crowdsale,
+    Token: state.Token,
     account: state.account,
     gasPrice: state.gasPrice
   }

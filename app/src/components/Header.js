@@ -3,7 +3,6 @@ import { connect } from 'react-redux'
 import { Redirect } from 'react-router'
 
 import Box from 'grommet/components/Box'
-import Label  from 'grommet/components/Label'
 import Tabs  from 'grommet/components/Tabs'
 import Tab  from 'grommet/components/Tab'
 
@@ -24,7 +23,7 @@ class Header extends PureComponent {
   }
 
   validateAdmin() {
-    this.props.Crowdsale.deployed().then(async (crowdsale) => {
+    this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.validate({ from: this.props.account }).then((res) => {
         this.setState({
           isOwner: res
@@ -54,79 +53,34 @@ class Header extends PureComponent {
         <Box align='center' responsive={true} pad='medium'>
         { this.state.isOwner
           ? <Box>
-              <Label align='center'>Crowdsale:</Label>
               <Tabs responsive={true} justify='center' onActive={() => { this.setState({ redirect: true }) }}>
                 <Tab title='Home'>
                   { this.redirect('/admin') }
                 </Tab>
-                <Tab title='Ownership'>
-                  { this.redirect('/transfer-ownership') }
-                </Tab>
-                <Tab title='Reclaim'>
-                  { this.redirect('/reclaim-tokens') }
-                </Tab>
-                <Tab title='Approval'>
-                  { this.redirect('/approve') }
+                <Tab title='Manage'>
+                  { this.redirect('/manage') }
                 </Tab>
                 <Tab title='Wh. add'>
-                  { this.redirect('/whitelist-add') }
+                  { this.redirect('/whitelist_add') }
                 </Tab>
                 <Tab title='Wh. remove'>
-                  { this.redirect('/whitelist-remove') }
+                  { this.redirect('/whitelist_remove') }
                 </Tab>
               </Tabs>
-              <Label align='center'>Token:</Label>
-              <Tabs responsive={true} justify='center' onActive={() => { this.setState({ redirect: true }) }}>
-                <Tab title='Markup'>
-                  { this.redirect('/markup') }
-                </Tab>
-                <Tab title='Fee'>
-                  { this.redirect('/fee') }
-                </Tab>
-                <Tab title='Mint'>
-                  { this.redirect('/mint') }
-                </Tab>
-                <Tab title='Finish mint'>
-                  { this.redirect('/finish-mint') }
-                </Tab>
-                <Tab title='Users'>
-                  { this.redirect('/users-admin') }
-                </Tab>
-                <Tab title='Get User'>
-                  { this.redirect('/get-user') }
-                </Tab>
-              </Tabs>
-              { /*
-              <Redeems />
-              <Certificates />
-              <TokenAvailability />
-              */ }
             </Box>
           : <Box>
             <Tabs responsive={true} justify='center' onActive={() => { this.setState({ redirect: true }) }}>
               <Tab title='Home'>
-                { this.redirect('/help') }
+                { this.redirect('/') }
               </Tab>
               <Tab title='Market Info'>
-                { this.redirect('/market-info') }
+                { this.redirect('/market_info') }
               </Tab>
-              <Tab title='Register'>
-                { this.redirect('/register') }
-              </Tab>
-              <Tab title='Buy tokens'>
-                { this.redirect('/ico') }
+              <Tab title='Get tokens'>
+                { this.redirect('/get') }
                 </Tab>
-              <Tab title='Exchange'>
-                { this.redirect('/exchange') }
-              </Tab>
-              <Tab title='Send'>
+              <Tab title='Send tokens'>
                 { this.redirect('/transfer') }
-              </Tab>
-              <Tab title='My account'>
-                { this.redirect('/account') }
-              </Tab>
-              <Tab title='Users'>
-                { this.redirect('/users') }
               </Tab>
             </Tabs>
           </Box>
@@ -138,7 +92,7 @@ class Header extends PureComponent {
 
 function mapStateToProps(state) {
   return {
-    Crowdsale: state.Crowdsale,
+    Token: state.Token,
     account: state.account
   }
 }

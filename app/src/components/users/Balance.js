@@ -6,7 +6,7 @@ import List from 'grommet/components/List'
 import ListItem  from 'grommet/components/ListItem'
 import Box  from 'grommet/components/Box'
 
-import env from '../../env'
+import env from 'env'
 
 class Balance extends PureComponent {
   constructor(props) {
@@ -21,7 +21,7 @@ class Balance extends PureComponent {
     this.getEthBalance = this.getEthBalance.bind(this)
   }
 
-  async componentDidMount() {
+  componentDidMount = async () => {
     this.getBalance()
     this.getEthBalance()
   }
@@ -43,7 +43,7 @@ class Balance extends PureComponent {
   }
 
   getBalance() {
-    this.props.Crowdsale.deployed().then((crowdsale) => {
+    this.props.Token.deployed().then((crowdsale) => {
       if(this.props.account != null) {
         crowdsale.balanceOf(this.props.account).then((tokenBalance) => {
           this.setState({
@@ -90,7 +90,7 @@ class Balance extends PureComponent {
 function mapStateToProps(state) {
   return {
     web3: state.web3,
-    Crowdsale: state.Crowdsale,
+    Token: state.Token,
     account: state.account
   }
 }

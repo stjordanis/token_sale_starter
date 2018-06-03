@@ -17,11 +17,14 @@ module.exports = function(deployer, network, accounts) {
     .then(() => {
       return deployer.deploy(
         Token,
-        { from: _wallet, gas: 6712390, gasPrice: web3.toWei(4, 'gwei') }
+        { from: _wallet, gas: web3.eth.getBlock('pending').gasLimit, gasPrice: web3.toWei(4, 'gwei') }
       )
     })
     .then(async () => {
+      console.log('token 1')
       const token = await Token.deployed()
+      console.log('token')
+      console.log(token)
       console.log(`Token address: ${chalk.green(token.address)}`)
     })
 

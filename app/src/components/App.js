@@ -7,23 +7,22 @@ import App from 'grommet/components/App'
 import Box from 'grommet/components/Box'
 import ReactGA from 'react-ga'
 
-import * as actions from '../actions'
-import Async from './Async'
-import env from '../env'
+import * as actions from 'actions'
+import Async from 'components/Async'
+import env from 'env'
 ReactGA.initialize(env.GA)
 const supportsHistory = 'pushState' in window.history
-const Help = Async(() => import('cintainers/Help'))
 const Home = Async(() => import('containers/Home'))
 const Header = Async(() => import('components/Header'))
 const Footer = Async(() => import('components/Footer'))
-const MarketInfo = Async(() => import('components/MarketInfo'))
+const MarketInfo = Async(() => import('containers/MarketInfo'))
 const TransferTokens = Async(() => import('containers/TransferTokens'))
 const BuyTokens = Async(() => import('containers/BuyTokens'))
 const Status = Async(() => import('components/Status'))
 const RemoveFromWhitelist = Async(() => import('components/admin/RemoveFromWhitelist'))
 const AddToWhitelist = Async(() => import('components/admin/AddToWhitelist'))
 const Admin = Async(() => import('components/admin/Admin'))
-const NoMatch = Async(() => import('containers/NoMatch'))
+const TransferOwnership = Async(() => import('components/admin/TransferOwnership'))
 
 class dApp extends PureComponent {
   constructor(props) {
@@ -86,16 +85,14 @@ class dApp extends PureComponent {
                   ? <div>
                       <Header />
                       <Switch>
-                      <Route exact strict sensitive path='/' component={Help} />
                       <Route exact strict sensitive path='/account' component={Home} />
-                      <Route exact strict sensitive path='/buy' component={BuyTokens} />
+                      <Route exact strict sensitive path='/get' component={BuyTokens} />
                       <Route exact strict sensitive path='/market_info' component={MarketInfo} />
                       <Route exact strict sensitive path='/transfer' component={TransferTokens} />
                       <Route exact strict sensitive path='/admin' component={Admin} />
                       <Route exact strict sensitive path='/manage' component={TransferOwnership} />
                       <Route exact strict sensitive path='/whitelist_remove' component={RemoveFromWhitelist} />
                       <Route exact strict sensitive path='/whitelist_add' component={AddToWhitelist} />
-                      <Route component={NoMatch} />
                       </Switch>
                     </div>
                   : null

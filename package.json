@@ -32,7 +32,7 @@
     "cross-env": "^5.1.4",
     "crypto": "^1.0.1",
     "dotenv": "^5.0.1",
-    "truffle": "^4.1.8",
+    "truffle": "^4.1.11",
     "truffle-contract": "^3.0.5",
     "truffle-hdwallet-provider": "0.0.5",
     "truffle-hdwallet-provider-privkey": "^0.2.0"
@@ -61,7 +61,7 @@
     "json-loader": "^0.5.4",
     "solgraph": "^0.2.6",
     "solidity-coverage": "^0.4.15",
-    "solium": "^1.1.6",
+    "solium": "^1.1.7",
     "truffle-test-utils": "^0.1.0"
   }
 }

@@ -10,7 +10,7 @@ import Button from 'grommet/components/Button'
 import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
 
-import env from '../env'
+import env from 'env'
 
 class TransferTokens extends PureComponent {
   constructor(props) {
@@ -45,7 +45,7 @@ class TransferTokens extends PureComponent {
       failure: ''
     })
 
-    this.props.Crowdsale.deployed().then(async (crowdsale) => {
+    this.props.Token.deployed().then(async (crowdsale) => {
       if (this.state.amountTokens > 0 && Web3Utils.isAddress(this.state.to)) {
         crowdsale.transfer(this.state.to, this.state.amountTokens * 10 ** env.DECIMALS, { from: this.props.account })
           .then((receipt) => {
@@ -118,8 +118,7 @@ class TransferTokens extends PureComponent {
 
 function mapStateToProps(state) {
   return {
-    // Token: state.Token,
-    Crowdsale: state.Crowdsale,
+    Token: state.Token,
     account: state.account,
     web3: state.web3
   }

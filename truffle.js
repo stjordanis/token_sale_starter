@@ -1,7 +1,7 @@
 require('babel-register')
 require('babel-polyfill')
 const assert = require('assert')
-const prod = process.env.ENV === 'production'
+const prod = false
 const envLoc = prod ? './.env' : './.env.sample'
 require('dotenv').config({ path: envLoc })
 // const HDWalletProvider = require('truffle-hdwallet-provider-privkey')
@@ -16,8 +16,10 @@ const config = {
     development: {
       host: '127.0.0.1',
       port: 8545,
-      network_id: 336
-    },
+      network_id: 336,
+      gas: 6712390,
+      gasPrice: 10000000000
+    }/*,
     rinkeby: {
       host: 'localhost',
       port: 8545,
@@ -36,7 +38,7 @@ const config = {
       port: 8545,
       gas: 0xfffffffffff,
       gasPrice: 0x01
-    }
+    }*/
   },
   solc: {
     optimizer: {

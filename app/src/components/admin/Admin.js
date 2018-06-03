@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+
 import Box  from 'grommet/components/Box'
 import Heading  from 'grommet/components/Heading'
 import Label  from 'grommet/components/Label'

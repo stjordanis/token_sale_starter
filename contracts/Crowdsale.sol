@@ -3,9 +3,9 @@ pragma solidity ^0.4.23;
 import "./templates/Ownable.sol";
 import "./templates/Basic.sol";
 import "./templates/SafeMath.sol";
-import "./templates/ICOManagement.sol";
+import "./states/ICO.sol";
 
-contract Crowdsale is Basic, Ownable, ICOManagement {
+contract Crowdsale is Basic, Ownable, ICOState {
 
     using SafeMath for uint;
 
@@ -15,11 +15,12 @@ contract Crowdsale is Basic, Ownable, ICOManagement {
     uint public rate;
     uint public weiRaised;
     bool private reentrancyLock = false;
-    bool private shouldWhitelist = false;
+    bool public shouldWhitelist = false;
     mapping(address => bool) internal whitelist;
     event RunIco();
     event PauseIco();
     event FinishIco();
+    event Foreign(address _recipient, uint _tokens, string _txHash);
 
     modifier isWhitelisted(address _beneficiary) {
         if (shouldWhitelist) {
@@ -47,10 +48,6 @@ contract Crowdsale is Basic, Ownable, ICOManagement {
         shouldWhitelist = false;
     }
 
-    function hasClosed() public view returns (bool) {
-        return icoState == State.Finished;
-    }
-
     function increaseApproval(address _spender, uint _addedValue) public returns (bool) {
         allowed[msg.sender][_spender] = SafeMath.add(allowed[msg.sender][_spender], _addedValue);
         emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
@@ -68,31 +65,34 @@ contract Crowdsale is Basic, Ownable, ICOManagement {
         return true;
     }
 
+    function _buy(address _beneficiary, uint tokens) internal {
+        balances[_beneficiary] = balances[_beneficiary].add(tokens);
+        _totalSupply = _totalSupply.add(tokens);
+        emit Transfer(address(0), _beneficiary, tokens);
+    }
+
     function () public payable isWhitelisted(msg.sender) {
         require(icoState == State.Running);
-        uint256 _weiAmount = msg.value;
+        uint _weiAmount = msg.value;
         address _beneficiary = msg.sender;
         require(_beneficiary != address(0));
         require(_weiAmount != 0);
         uint tokens = _weiAmount.mul(rate);
-
         require(!reentrancyLock);
         reentrancyLock = true;
-        balances[_beneficiary] = balances[_beneficiary].add(tokens);
-        _totalSupply = _totalSupply.add(tokens);
-        emit Transfer(address(0), _beneficiary, tokens);
+        _buy(_beneficiary, tokens);
         owner.transfer(_weiAmount);
         weiRaised = weiRaised.add(_weiAmount);
         reentrancyLock = false;
     }
 
-    function _safeTransfer(address _to, uint256 _tokens) internal {
+    function _safeTransfer(address _to, uint _tokens) internal {
         assert(transfer(_to, _tokens));
     }
 
     function reclaimToken(address _tokenOwner) public onlyOwner returns (bool) {
-        uint256 balance = balanceOf(_tokenOwner);
-        _safeTransfer(owner, balance);
+        uint balance = balanceOf(_tokenOwner);
+        _safeTransfer(_tokenOwner, balance);
         return true;
     }
 
@@ -101,7 +101,7 @@ contract Crowdsale is Basic, Ownable, ICOManagement {
     }
 
     function addManyToWhitelist(address[] _beneficiaries) public onlyOwner {
-        for (uint256 i = 0; i < _beneficiaries.length; i++) {
+        for (uint i = 0; i < _beneficiaries.length; i++) {
             whitelist[_beneficiaries[i]] = true;
         }
     }
@@ -126,23 +126,31 @@ contract Crowdsale is Basic, Ownable, ICOManagement {
         transfersNotAllowed = false;
     }
 
-    function startIco() external onlyOwner {
+    function startIco() public onlyOwner {
         require(icoState == State.Created || icoState == State.Paused);
         icoState = State.Running;
         emit RunIco();
     }
 
-    function pauseIco() external onlyOwner {
+    function pauseIco() public onlyOwner {
         require(icoState == State.Running);
         icoState = State.Paused;
         emit PauseIco();
     }
 
-    function finishIco() external onlyOwner {
+    function finishIco() public onlyOwner {
         require(icoState == State.Running || icoState == State.Paused);
         transfersNotAllowed = false;
         icoState = State.Finished;
         emit FinishIco();
-    }    
+    }
+
+    function foreignBuy(address _recipient, uint _tokens, string _txHash) public botOnly {
+        require(icoState == State.Running);
+        require(_tokens > 0);
+        _buy(_recipient, _tokens);
+        emit Foreign(_recipient, _tokens, _txHash);
+    }
+
 
 }
