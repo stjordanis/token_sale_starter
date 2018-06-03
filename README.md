@@ -7,11 +7,18 @@
 
 Token Sale Starter is a quick to start token sale contract and dApp with following features:
 
-* ERC-20 compatible (enhanced)
+* ERC-20 compatible
 * Buy and transfer tokens for end users
-* Withdraw, set rate, etc., whitelists for owner
+* Withdraw, set rate, whitelists, etc. for owner
 
 Sales through this contract/ dApp after the event should then be imported into main contract (see below).
+
+## Why?
+
+We have too many repeating functions for each new contract. Why instead not to modularize everything and 
+make a contract for the each specific job of the major contract? Think of this project as a library-driven 
+development for businesses. This one is meant to do simple job - fill the token details (what' you're selling) and 
+requirements (as an example, currently whitelisting is implemented and can be set by the contarc towner wiuthout touching the code itself).
 
 ## Install
 
@@ -83,6 +90,10 @@ function migrate(address[] _recipients) public onlyOwner returns (bool) {
 ```
 
 Tokens of the starter contract will be burnt (when this contract address is set) and transferred to main contract (only owner can do this). See an example of this in examples/Example.sol
+
+## Contributions
+
+Contributions are welcome.
 
 ## Licence
 

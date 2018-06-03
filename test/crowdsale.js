@@ -1,4 +1,3 @@
-require('truffle-test-utils').init();
 import ether from './helpers/ether';
 import { advanceBlock } from './helpers/advanceToBlock';
 import EVMRevert from './helpers/EVMRevert';
@@ -8,6 +7,10 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 const Token = artifacts.require('Crowdsale');
+console.log('Token')
+console.log(Token)
+
+let crowdsale;
 
 contract('Crowdsale', ([owner, wallet, investor, otherInvestor, outsider]) => {
   before(async () => {
@@ -15,21 +18,21 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor, outsider]) => {
   });
 
   beforeEach(async () => {
-    this.crowdsale = await Token.new();
-    this.crowdsale.setParams('TST', 'test', 18, 5000, { from: owner });
+    crowdsale = Token.new();
+    crowdsale.setParams('TST', 'test', 18, 5000, { from: owner });
   });
 
   describe('init', () => {
     it('has an owner', async () => {
-      assert.equal(await this.crowdsale.owner(), owner);
+      assert.equal(await crowdsale.owner(), owner);
     });
 
     it('should set parameters', async () => {
-      const rate = await this.crowdsale.rate();
-      const symbol = await this.crowdsale.symbol();
-      const tokenName = await this.crowdsale.tokenName();
-      const decimals = await this.crowdsale.decimals();
-      const totalSupply = await this.crowdsale.totalSupply();
+      const rate = await crowdsale.rate();
+      const symbol = await crowdsale.symbol();
+      const tokenName = await crowdsale.tokenName();
+      const decimals = await crowdsale.decimals();
+      const totalSupply = await crowdsale.totalSupply();
 
       rate.should.be.bignumber.equal(5000);
       symbol.should.be.equal('TST');
@@ -39,130 +42,135 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor, outsider]) => {
     });
 
     it('should set rate', async () => {
-      await this.crowdsale.setRate(10, { from: owner })
-      const rate = await this.crowdsale.rate();
+      await crowdsale.setRate(10, { from: owner })
+      const rate = await crowdsale.rate();
       assert.equal(rate, 10);
     });
 
     it('should set whitelisting', async () => {
-      await this.crowdsale.setWhitelisting({ from: owner })
-      const doWhitelisting = await this.crowdsale.shouldWhitelist();
+      await crowdsale.setWhitelisting({ from: owner })
+      const doWhitelisting = await crowdsale.shouldWhitelist();
       assert.equal(doWhitelisting, true);
     });
 
     it('should unset whitelisting', async () => {
-      await this.crowdsale.unsetWhitelisting({ from: owner })
-      const doWhitelisting = await this.crowdsale.shouldWhitelist();
+      await crowdsale.unsetWhitelisting({ from: owner })
+      const doWhitelisting = await crowdsale.shouldWhitelist();
       assert.equal(doWhitelisting, true);
     });
 
     it('others can\'t set parameters', async () => {
-      await this.crowdsale.setParams('TST', 'test', 18, 5000, { from: outsider }).should.be.rejectedWith(EVMRevert);
+      await crowdsale.setParams('TST', 'test', 18, 5000, { from: outsider }).should.be.rejectedWith(EVMRevert);
     });
 
     it('others can\'t set rates', async () => {
-      await this.crowdsale.setRate(10, { from: outsider }).should.be.rejectedWith(EVMRevert);
+      await crowdsale.setRate(10, { from: outsider }).should.be.rejectedWith(EVMRevert);
     });
 
     it('others can\'t set whtelisting', async () => {
-      await this.crowdsale.setWhitelisting({ from: outsider }).should.be.rejectedWith(EVMRevert);
+      await crowdsale.setWhitelisting({ from: outsider }).should.be.rejectedWith(EVMRevert);
     });
 
     it('others can\'t unset whtelisting', async () => {
-      await this.crowdsale.unsetWhitelisting({ from: outsider }).should.be.rejectedWith(EVMRevert);
+      await crowdsale.unsetWhitelisting({ from: outsider }).should.be.rejectedWith(EVMRevert);
     });
 
     it('start ico', async () => {
-      await this.crowdsale.startIco({ from: owner })
-      const state = await this.crowdsale.icoState();
+      await crowdsale.startIco({ from: owner })
+      const state = await crowdsale.icoState();
     });
 
     it('start event is in the logs', async () => {
-      const { logs } = await this.crowdsale.startIco({ from: owner });
+      const { logs } = await crowdsale.startIco({ from: owner });
       const event = logs.find((e) => e.event === 'RunIco');
       should.exist(event);
     });
 
     it('pause ico', async () => {
-      await this.crowdsale.pauseIco({ from: owner })
-      const state = await this.crowdsale.icoState();
+      await crowdsale.pauseIco({ from: owner })
+      const state = await crowdsale.icoState();
     });
 
     it('pause event is in the logs', async () => {
-      const { logs } = await this.crowdsale.startIco({ from: owner });
+      const { logs } = await crowdsale.startIco({ from: owner });
       const event = logs.find((e) => e.event === 'PauseIco');
       should.exist(event);
     });
 
     it('finish ico', async () => {
-      await this.crowdsale.pauseIco({ from: owner })
-      const state = await this.crowdsale.icoState();
+      await crowdsale.pauseIco({ from: owner })
+      const state = await crowdsale.icoState();
     });
 
     it('pause event is in the logs', async () => {
-      const { logs } = await this.crowdsale.finishIco({ from: owner });
+      const { logs } = await crowdsale.finishIco({ from: owner });
       const event = logs.find((e) => e.event === 'FinishIco');
       should.exist(event);
     });
 
     it('set bot', async () => {
-      await this.crowdsale.setBot(otherInvestor, { from: owner })
-      const bot = await this.crowdsale.bot();
+      await crowdsale.setBot(otherInvestor, { from: owner })
+      const bot = await crowdsale.bot();
       bot.should.be.bignumber.equal(otherInvestor);
     });
 
     it('bot cannot be set from non-owner', async () => {
-      await this.crowdsale.setBot(otherInvestor, { from: otherInvestor }).should.be.rejectedWith(EVMRevert);
+      await crowdsale.setBot(otherInvestor, { from: otherInvestor }).should.be.rejectedWith(EVMRevert);
     });
 
     it('validate owner', async () => {
-      await this.crowdsale.validate({ from: otherInvestor }).should.be.rejectedWith(EVMRevert);
-      await this.crowdsale.validate({ from: owner }).should.be.fulfilled;
+      await crowdsale.validate({ from: otherInvestor }).should.be.rejectedWith(EVMRevert);
+      await crowdsale.validate({ from: owner }).should.be.fulfilled;
     });
 
     it('transfer ownership', async () => {
-      await this.crowdsale.transferOwnership(investor, { from: otherInvestor }).should.be.rejectedWith(EVMRevert);
-      await this.crowdsale.transferOwnership(investor, { from: owner }).should.be.fulfilled;
-      const newOwner = this.crowdsale.owner();
+      await crowdsale.transferOwnership(investor, { from: otherInvestor }).should.be.rejectedWith(EVMRevert);
+      await crowdsale.transferOwnership(investor, { from: owner }).should.be.fulfilled;
+      const newOwner = crowdsale.owner();
       newOwner.should.be.bignumber.equal(owner);
     });
+
+    it('should guard ownership against stuck state', async function () {
+      let originalOwner = await this.token.owner()
+      await assertRevert(this.token.transferOwnership(null, { from: originalOwner }))
+    })
   });
 
   describe('sales conditions', () => {
     it('should accept payments if running', async () => {
-      const { logs } = await this.crowdsale.startIco({ from: owner });
-      await this.crowdsale.send(3.33).should.be.fulfilled;
+      const { logs } = await crowdsale.startIco({ from: owner });
+      await crowdsale.send(3.33).should.be.fulfilled;
       const event = logs.find((e) => e.event === 'Transfer');
       should.exist(event);
     });
 
     it('should reject payments if created', async () => {
-      await this.crowdsale.send(1).should.be.rejectedWith(EVMRevert);
+      await crowdsale.send(1).should.be.rejectedWith(EVMRevert);
     });
 
     it('should reject payments if paused', async () => {
-      await this.crowdsale.pauseIco({ from: owner })
-      await this.crowdsale.send(1).should.be.rejectedWith(EVMRevert);
+      await crowdsale.pauseIco({ from: owner })
+      await crowdsale.send(1).should.be.rejectedWith(EVMRevert);
     });
 
     it('should reject payments if finished', async () => {
-      const { logs } = await this.crowdsale.finishIco({ from: owner });
-      await this.crowdsale.send(1).should.be.rejectedWith(EVMRevert);
+      const { logs } = await crowdsale.finishIco({ from: owner });
+      await crowdsale.send(1).should.be.rejectedWith(EVMRevert);
     });
   });
 
   describe('sales', () => {
     it('should generate correct balances', async () => {
-      await this.crowdsale.startIco({ from: owner });
-      const rate = await this.crowdsale.rate();
+      await crowdsale.startIco({ from: owner });
+      const rate = await crowdsale.rate();
       const amount = ether(1);
       const expectedTokenAmount = rate.mul(amount);
 
-      await this.crowdsale.send({ value: amount, from: investor }).should.be.fulfilled;
-      (await this.crowdsale.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
-      (await this.crowdsale.balanceOf(owner)).should.be.bignumber.equal(0);
-      (await this.crowdsale.totalSupply()).should.be.bignumber.equal(expectedTokenAmount);
-      (await this.crowdsale.weiRaised()).should.be.bignumber.equal(amount);
+      await crowdsale.send({ value: amount, from: investor }).should.be.fulfilled;
+      (await crowdsale.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
+      (await crowdsale.balanceOf(owner)).should.be.bignumber.equal(0);
+      (await crowdsale.totalSupply()).should.be.bignumber.equal(expectedTokenAmount);
+      (await crowdsale.weiRaised()).should.be.bignumber.equal(amount);
       const ownerBalance = web3.eth.getBalance(owner);
       ownerBalance.should.be.bignumber.equal(amount);
     });
@@ -170,26 +178,26 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor, outsider]) => {
 
   describe('whitelists', () => {
     beforeEach(async () => {
-      await this.crowdsale.startIco({ from: owner });
-      await this.crowdsale.setWhitelisting({ from: owner });
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.setWhitelisting({ from: owner });
     });
 
     it('allow sales for rwhitelisted', async () => {
-      await this.crowdsale.addToWhitelist(investor, { from: owner });
-      (await this.crowdsale.send({ value: 1, from: investor })).should.be.fulfilled;
+      await crowdsale.addToWhitelist(investor, { from: owner });
+      (await crowdsale.send({ value: 1, from: investor })).should.be.fulfilled;
     });
 
     it('not allow to whitelist from non-owners', async () => {
-      (await this.crowdsale.addToWhitelist(investor, { from: otherInvestor })).should.be.rejectedWith(EVMRevert);
+      (await crowdsale.addToWhitelist(investor, { from: otherInvestor })).should.be.rejectedWith(EVMRevert);
     });
 
     it('not allow non-whitelisted people to participate', async () => {
-      (await this.crowdsale.send({ { value: 1, from: investor })).should.be.rejectedWith(EVMRevert);
+      (await crowdsale.send({ value: 1, from: investor })).should.be.rejectedWith(EVMRevert);
     });
 
     it('add to whitelist', async () => {
-      (await this.crowdsale.addToWhitelist(investor, { from: owner })).should.be.fulfilled;;
-      const status = await this.crowdsale.getWhitelistStatus(investor, { from: owner });
+      (await crowdsale.addToWhitelist(investor, { from: owner })).should.be.fulfilled;;
+      const status = await crowdsale.getWhitelistStatus(investor, { from: owner });
       status.should.equal(true);
     });
 
@@ -206,34 +214,34 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor, outsider]) => {
         '0x093b30604ac41e054e71b670d8e3ab68360017c9',
         '0x1cac60d851a44305d7dd6ecf8ff32f3403427d3d'
       ]
-      (await this.crowdsale.addManyToWhitelist(investors, { from: owner })).should.be.fulfilled;;
+      (await crowdsale.addManyToWhitelist(investors, { from: owner })).should.be.fulfilled;;
     });
 
     it('remove from whitelist', async () => {
-      (await this.crowdsale.addToWhitelist(investor, { from: owner })).should.be.fulfilled;;
-      (await this.crowdsale.removeFromWhitelist(investor, { from: owner })).should.be.fulfilled;;
-      const status = await this.crowdsale.getWhitelistStatus(investor, { from: owner });
+      (await crowdsale.addToWhitelist(investor, { from: owner })).should.be.fulfilled;;
+      (await crowdsale.removeFromWhitelist(investor, { from: owner })).should.be.fulfilled;;
+      const status = await crowdsale.getWhitelistStatus(investor, { from: owner });
       status.should.equal(false);
     });
 
     it('not allow to remove from whitelist fro non-owners', async () => {
-      (await this.crowdsale.addToWhitelist(investor, { from: owner })).should.be.fulfilled;;
-      (await this.crowdsale.removeFromWhitelist(investor, { from: otherInvestor })).should.be.rejectedWith(EVMRevert);
+      (await crowdsale.addToWhitelist(investor, { from: owner })).should.be.fulfilled;;
+      (await crowdsale.removeFromWhitelist(investor, { from: otherInvestor })).should.be.rejectedWith(EVMRevert);
     });
   });
 
   describe('transfers allowance', () => {
     it('allow transfers', async () => {
       await this.corwdsale.allowTransfers({ from: owner });
-      const allowed = this.crowdsale.transfersNotAllowed()
+      const allowed = crowdsale.transfersNotAllowed()
       allowed.should.be.equal(true);
     });
 
     it('disallow transfers when running ICO', async () => {
-      await this.crowdsale.startIco({ from: owner });
-      await this.crowdsale.send({ value: 10, from: owner });
-      await this.crowdsale.allowTransfers({ from: owner });
-      const allowed = this.crowdsale.transfersNotAllowed();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.send({ value: 10, from: owner });
+      await crowdsale.allowTransfers({ from: owner });
+      const allowed = crowdsale.transfersNotAllowed();
       allowed.should.be.equal(false);
       await this.token.transfer(anoth, 1, { from: owner }).should.be.rejectedWith(EVMRevert);
     });
@@ -241,11 +249,11 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor, outsider]) => {
 
   describe('transfers', () => {
     beforeEach(async () => {
-      await this.crowdsale.startIco({ from: owner });
+      await crowdsale.startIco({ from: owner });
       const ethers = ether(100);
-      const rate = this.crowdsale.rate();
+      const rate = crowdsale.rate();
       this.initial = ethers.mul(rate);
-      (await this.crowdsale.send({ value: ethers, from: investor })).should.be.fulfilled;;
+      (await crowdsale.send({ value: ethers, from: investor })).should.be.fulfilled;;
       (await this.corwdsale.allowTransfers({ from: owner })).should.be.fulfilled;;
     });
 
@@ -299,14 +307,15 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor, outsider]) => {
 
   describe('foreign buys', () => {
     it('should generate correct balances for foreign buys', async () => {
-      await this.crowdsale.startIco({ from: owner });
-      const rate = await this.crowdsale.rate();
+      await crowdsale.startIco({ from: owner });
+      const rate = await crowdsale.rate();
       const amount = ether(1);
       const expectedTokenAmount = rate.mul(amount);
-      await this.crowdsale.setBot(otherInvestor, { from: owner })
-      const bot = await this.crowdsale.bot();
+      await crowdsale.setBot(otherInvestor, { from: owner })
+      const bot = await crowdsale.bot();
       const tx = '0000000000000000002f6724320130e0bd460e97cfda6ef6b5748de931dd16af';
-      await this.crowdsale.foreignBuy(investor, expectedTokenAmount, tx, { from: bot }).should.be.fulfilled;
-      (await this.crowdsale.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
+      await crowdsale.foreignBuy(investor, expectedTokenAmount, tx, { from: bot }).should.be.fulfilled;
+      (await crowdsale.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
     });
   });
+});
