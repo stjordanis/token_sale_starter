@@ -43,6 +43,7 @@ npm start
 ```
 truffle test
 ```
+
 ## How to start the sale
 
 1. Deploy contract.

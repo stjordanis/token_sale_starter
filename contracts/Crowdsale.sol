@@ -15,12 +15,13 @@ contract Crowdsale is Basic, Ownable, ICOState {
     uint public rate;
     uint public weiRaised;
     bool private reentrancyLock = false;
-    bool public shouldWhitelist = false;
+    bool public shouldWhitelist;
     mapping(address => bool) internal whitelist;
     event RunIco();
     event PauseIco();
     event FinishIco();
     event Foreign(address _recipient, uint _tokens, string _txHash);
+    uint private max = 2**256-1;
 
     modifier isWhitelisted(address _beneficiary) {
         if (shouldWhitelist) {
@@ -29,7 +30,15 @@ contract Crowdsale is Basic, Ownable, ICOState {
         _;
     }
 
+    constructor() public {
+        shouldWhitelist = false;
+        rate = 3;
+        decimals = 18;
+    }
+
     function setParams(bytes32 _symbol, bytes32 _name, uint8 _decimals, uint _rate) public onlyOwner {
+        require(_rate > 0 && _rate <= max.div(_rate));
+        require(_decimals > 0 && _decimals <= 18);
         symbol = _symbol;
         tokenName = _name;
         decimals = _decimals;
@@ -37,6 +46,7 @@ contract Crowdsale is Basic, Ownable, ICOState {
     }
 
     function setRate(uint _rate) public onlyOwner {
+        require(_rate > 0 && _rate <= max.div(_rate));
         rate = _rate;
     }
 
@@ -49,7 +59,7 @@ contract Crowdsale is Basic, Ownable, ICOState {
     }
 
     function increaseApproval(address _spender, uint _addedValue) public returns (bool) {
-        allowed[msg.sender][_spender] = SafeMath.add(allowed[msg.sender][_spender], _addedValue);
+        allowed[msg.sender][_spender] = allowed[msg.sender][_spender].add(_addedValue);
         emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
         return true;
     }
@@ -59,29 +69,32 @@ contract Crowdsale is Basic, Ownable, ICOState {
         if (_subtractedValue > oldValue) {
             allowed[msg.sender][_spender] = 0;
         } else {
-            allowed[msg.sender][_spender] = SafeMath.sub(oldValue, _subtractedValue);
+            allowed[msg.sender][_spender] = oldValue.sub(_subtractedValue);
         }
         emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
         return true;
     }
 
     function _buy(address _beneficiary, uint tokens) internal {
+        require(_totalSupply.add(tokens) <= max);
         balances[_beneficiary] = balances[_beneficiary].add(tokens);
         _totalSupply = _totalSupply.add(tokens);
         emit Transfer(address(0), _beneficiary, tokens);
     }
 
     function () public payable isWhitelisted(msg.sender) {
+        require(!reentrancyLock);
+        reentrancyLock = true;
         require(icoState == State.Running);
         uint _weiAmount = msg.value;
         address _beneficiary = msg.sender;
         require(_beneficiary != address(0));
         require(_weiAmount != 0);
+        require(_weiAmount.mul(rate) <= max);
         uint tokens = _weiAmount.mul(rate);
-        require(!reentrancyLock);
-        reentrancyLock = true;
         _buy(_beneficiary, tokens);
         owner.transfer(_weiAmount);
+        require(weiRaised.add(_weiAmount) <= max);
         weiRaised = weiRaised.add(_weiAmount);
         reentrancyLock = false;
     }
@@ -147,7 +160,7 @@ contract Crowdsale is Basic, Ownable, ICOState {
 
     function foreignBuy(address _recipient, uint _tokens, string _txHash) public botOnly isWhitelisted(_recipient) {
         require(icoState == State.Running);
-        require(_tokens > 0);
+        require(_tokens > 0 && _tokens <= max);
         _buy(_recipient, _tokens);
         emit Foreign(_recipient, _tokens, _txHash);
     }
