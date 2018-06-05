@@ -34,6 +34,7 @@ contract Crowdsale is Basic, Ownable, ICOState {
         shouldWhitelist = false;
         rate = 3;
         decimals = 18;
+        transfersAllowed = false;
     }
 
     function setParams(bytes32 _symbol, bytes32 _name, uint8 _decimals, uint _rate) public onlyOwner {
@@ -51,10 +52,12 @@ contract Crowdsale is Basic, Ownable, ICOState {
     }
 
     function setWhitelisting() public onlyOwner {
+        require(shouldWhitelist == false);
         shouldWhitelist = true;
     }
 
     function unsetWhitelisting() public onlyOwner {
+        require(shouldWhitelist == true);
         shouldWhitelist = false;
     }
 
@@ -136,7 +139,13 @@ contract Crowdsale is Basic, Ownable, ICOState {
     }
 
     function allowTransfers() public onlyOwner {
-        transfersNotAllowed = false;
+        require(transfersAllowed == false);
+        transfersAllowed = true;
+    }
+
+    function disableTransfers() public onlyOwner {
+        require(transfersAllowed == true);
+        transfersAllowed = false;
     }
 
     function startIco() public onlyOwner {
@@ -153,7 +162,7 @@ contract Crowdsale is Basic, Ownable, ICOState {
 
     function finishIco() public onlyOwner {
         require(icoState == State.Running || icoState == State.Paused);
-        transfersNotAllowed = false;
+        transfersAllowed = true;
         icoState = State.Finished;
         emit FinishIco();
     }

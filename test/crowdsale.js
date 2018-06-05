@@ -4,6 +4,7 @@ require('chai').use(require('chai-as-promised')).use(require('chai-bignumber')(B
 const Token = artifacts.require('Crowdsale');
 
 contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
+  /*
   describe('init', () => {
     it('has an owner', async () => {
       const crowdsale = await Token.new();
@@ -281,6 +282,182 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
       investorBalance.toNumber().should.be.bignumber.equal(expectedTokenAmount);
       supply.toNumber().should.equal(expectedTokenAmount);
       weiRaised.toNumber().should.equal(amount);
+    });
+  });
+  */
+
+  /*describe('whitelists', () => {
+    it('allow sales for rwhitelisted', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.setWhitelisting({ from: owner });
+      await crowdsale.addToWhitelist(investor, { from: owner });
+      const { logs } = await crowdsale.sendTransaction({ from: investor, value: ether(4) });
+      logs[0].event.should.be.equal('Transfer');
+    });
+
+    it('not allow to whitelist from non-owners', async () => {
+      const crowdsale = await Token.new();
+      const logs = await crowdsale.addToWhitelist(investor, { from: otherInvestor }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+
+    it('not allow non-whitelisted people to participate', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.setWhitelisting({ from: owner });
+      const logs = await crowdsale.sendTransaction({ from: investor, value: ether(4) }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+
+    it('add to whitelist', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.addToWhitelist(investor, { from: owner });
+      const status = await crowdsale.getWhitelistStatus(investor, { from: owner });
+      status.should.equal(true);
+    });
+
+    it('add many to whitelist', async () => {
+      const crowdsale = await Token.new();
+      const recipients = [
+        '0x6f41fffc0338e715e8aac4851afc4079b712af70',
+        '0xad8926fdb14c2ca283ab1e8a05c0b6707bc03f97',
+        '0x1cb0ff92ec067169fd6b1b12c6d39a4f6c2cf6f9',
+        '0x594b70524993798cb093ca8a2bd7f02f904b66d3',
+        '0x2f1ee0930f00b0f3cdab66d916cbd1fa4fe9535a',
+        '0x5513a551c5aafaa8719a0df5bf398d4b3af4e211',
+        '0xa1bf121993c23cc467eec8b7e453011dae250404',
+        '0xe0b161979ebca95235c4cfeddfd11fb30d782a4d',
+        '0x093b30604ac41e054e71b670d8e3ab68360017c9',
+        '0x1cac60d851a44305d7dd6ecf8ff32f3403427d3d'
+      ];
+      await crowdsale.addManyToWhitelist(recipients, { from: owner });
+
+      for (let i = 0; i < recipients.length; i++) {
+        const status = await crowdsale.getWhitelistStatus(recipients[i], { from: owner });
+        status.should.equal(true);
+      }
+    });
+
+    it('remove from whitelist', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.addToWhitelist(investor, { from: owner });
+      await crowdsale.removeFromWhitelist(investor, { from: owner });
+      const status = await crowdsale.getWhitelistStatus(investor, { from: owner });
+      status.should.equal(false);
+    });
+
+    it('not allow to remove from whitelist for non-owners', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.addToWhitelist(investor, { from: owner });
+      const logs = await crowdsale.removeFromWhitelist(investor, { from: otherInvestor }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+  });*/
+
+  describe('transfers allowance', () => {
+    it('allow transfers', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.allowTransfers({ from: owner });
+      const allowed = await crowdsale.transfersAllowed();
+      allowed.should.be.equal(true);
+    });
+
+    it('disable transfers', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.allowTransfers({ from: owner });
+      await crowdsale.disableTransfers({ from: owner });
+      const allowed = await crowdsale.transfersAllowed();
+      allowed.should.be.equal(false);
+    });
+
+    it('not allow disabling tanfers when they are disabled', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.allowTransfers({ from: owner });
+      await crowdsale.disableTransfers({ from: owner });
+      const logs = await crowdsale.disableTransfers({ from: owner }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+
+    it('not allow enabling tanfers when they are enabled', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.allowTransfers({ from: owner });
+      const logs = await crowdsale.allowTransfers({ from: owner }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+
+    it('disallow transfers when running ICO', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.sendTransaction({ from: investor, value: ether(400) });
+      const allowed = await crowdsale.transfersAllowed();
+      allowed.should.be.equal(false);
+      const logs = await crowdsale.transfer(otherInvestor, 100, { from: investor }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+
+    it('disallow transfers when paused ICO', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.sendTransaction({ from: investor, value: ether(400) });
+      await crowdsale.pauseIco({ from: owner });
+      const allowed = await crowdsale.transfersAllowed();
+      allowed.should.be.equal(false);
+      const logs = await crowdsale.transfer(otherInvestor, 100, { from: investor }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+
+    it('allow transfers after finish', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.sendTransaction({ from: investor, value: ether(400) });
+      await crowdsale.finishIco({ from: owner });
+      const allowed = await crowdsale.transfersAllowed();
+      allowed.should.be.equal(true);
+      const { logs } = await crowdsale.transfer(otherInvestor, 100, { from: investor });
+      logs[0].event.should.be.equal('Transfer');
+    });
+
+    it('allow transfers when enabled and running ico', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.sendTransaction({ from: investor, value: ether(400) });
+      await crowdsale.allowTransfers({ from: owner });
+      const allowed = await crowdsale.transfersAllowed();
+      allowed.should.be.equal(true);
+      const { logs } = await crowdsale.transfer(otherInvestor, 100, { from: investor });
+      logs[0].event.should.be.equal('Transfer');
+    });
+
+    it('allow transfers when enabled and paused ico', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.sendTransaction({ from: investor, value: ether(400) });
+      await crowdsale.pauseIco({ from: owner });
+      await crowdsale.allowTransfers({ from: owner });
+      const allowed = await crowdsale.transfersAllowed();
+      allowed.should.be.equal(true);
+      const { logs } = await crowdsale.transfer(otherInvestor, 100, { from: investor });
+      logs[0].event.should.be.equal('Transfer');
+    });
+  });
+
+  describe('foreign buys', () => {
+    it('should generate correct balances for foreign buys', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      const rate = await crowdsale.rate();
+      const amount = ether(1);
+      const expectedTokenAmount = rate.mul(amount);
+      await crowdsale.setBot(otherInvestor, { from: owner })
+      const bot = await crowdsale.bot();
+      const tx = '0000000000000000002f6724320130e0bd460e97cfda6ef6b5748de931dd16af';
+      await crowdsale.foreignBuy(investor, expectedTokenAmount, tx, { from: bot });
+      const balance = await crowdsale.balanceOf(investor);
+      balance.should.be.bignumber.equal(expectedTokenAmount);
     });
   });
 });

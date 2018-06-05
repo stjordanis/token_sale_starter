@@ -16,9 +16,8 @@ Sales through this contract/ dApp after the event should then be imported into m
 ## Why?
 
 We have too many repeating functions for each new contract. Why instead not to modularize everything and 
-make a contract for the each specific job of the major contract? Think of this project as a library-driven 
-development for businesses. This one is meant to do simple job - fill the token details (what' you're selling) and 
-requirements (as an example, currently whitelisting is implemented and can be set by the contarc towner wiuthout touching the code itself).
+make a contract for the just a single specific job of the major contract? Think of this project as a library-driven 
+development for business processes. This one is meant to do simple task - you fill the token details (what you're selling) and requirements into dApp and get running own ICO site without touching the code.
 
 ## Install
 
@@ -38,9 +37,14 @@ cd app
 npm start
 ```
 
+## Management of ICO
+
+See test/crowdsale.js for available management integration tests.
+
 ## Test
 
 ```
+npm run rpc
 truffle test
 ```
 

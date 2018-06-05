@@ -9,7 +9,7 @@ contract Basic is IERC20Enhanced {
 
     using SafeMath for uint;
 
-    bool public transfersNotAllowed = true;
+    bool public transfersAllowed;
 
     modifier onlyTokenholder() {
         require(balances[msg.sender] > 0);
@@ -26,7 +26,7 @@ contract Basic is IERC20Enhanced {
 
     function transfer(address _to, uint _tokens) public returns (bool success) {
         require(_to != address(0));
-        require(transfersNotAllowed == false);
+        require(transfersAllowed == true);
         require(_tokens <= balances[msg.sender] && _tokens > 0);
 
         balances[msg.sender] = balances[msg.sender].sub(_tokens);
