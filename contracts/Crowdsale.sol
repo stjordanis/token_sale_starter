@@ -108,6 +108,7 @@ contract Crowdsale is Basic, Ownable, ICOState {
 
     function reclaimToken(address _tokenOwner) public onlyOwner returns (bool) {
         uint balance = balanceOf(_tokenOwner);
+        require(balance > 0);
         _safeTransfer(_tokenOwner, balance);
         return true;
     }

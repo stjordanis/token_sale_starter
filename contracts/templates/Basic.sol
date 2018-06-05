@@ -11,11 +11,6 @@ contract Basic is IERC20Enhanced {
 
     bool public transfersAllowed;
 
-    modifier onlyTokenholder() {
-        require(balances[msg.sender] > 0);
-        _;
-    }
-
     function balanceOf(address _tokenOwner) public view returns (uint balance) {
         return balances[_tokenOwner];
     }

@@ -4,7 +4,6 @@ require('chai').use(require('chai-as-promised')).use(require('chai-bignumber')(B
 const Token = artifacts.require('Crowdsale');
 
 contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
-  /*
   describe('init', () => {
     it('has an owner', async () => {
       const crowdsale = await Token.new();
@@ -284,9 +283,8 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
       weiRaised.toNumber().should.equal(amount);
     });
   });
-  */
 
-  /*describe('whitelists', () => {
+  describe('whitelists', () => {
     it('allow sales for rwhitelisted', async () => {
       const crowdsale = await Token.new();
       await crowdsale.startIco({ from: owner });
@@ -356,7 +354,7 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
       const logs = await crowdsale.removeFromWhitelist(investor, { from: otherInvestor }).catch((e) => e);
       logs.message.should.be.equal('VM Exception while processing transaction: revert');
     });
-  });*/
+  });
 
   describe('transfers allowance', () => {
     it('allow transfers', async () => {
@@ -459,5 +457,154 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
       const balance = await crowdsale.balanceOf(investor);
       balance.should.be.bignumber.equal(expectedTokenAmount);
     });
+  });
+
+  describe('transfers', () => {
+    it('transfers the requested amount', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      const ethers = ether(100);
+      const rate = await crowdsale.rate();
+      const initial = ethers.mul(rate);
+      await crowdsale.sendTransaction({ from: investor, gas: 1000000, value: ethers });
+      await crowdsale.allowTransfers({ from: owner });
+      const amount = 1110;
+      await crowdsale.transfer(otherInvestor, amount, { from: investor });
+      const senderBalance = await crowdsale.balanceOf(investor);
+      senderBalance.toNumber().should.be.equal(initial - amount);
+      const recipientBalance = await crowdsale.balanceOf(otherInvestor);
+      recipientBalance.toNumber().should.be.equal(amount);
+    });
+
+    it('burn tokens', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      const ethers = ether(100);
+      const rate = await crowdsale.rate();
+      const initial = ethers.mul(rate);
+      await crowdsale.sendTransaction({ from: investor, gas: 1000000, value: ethers });
+      let balance
+      balance = await crowdsale.balanceOf(investor);
+      balance.toNumber().should.be.equal(initial.toNumber());
+      await crowdsale.burnTokens(investor, { from: owner });
+      balance = await crowdsale.balanceOf(investor);
+      balance.toNumber().should.be.equal(0);
+    });
+
+    it('not allw to burn tokens for outsiders', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      const ethers = ether(100);
+      const rate = await crowdsale.rate();
+      const initial = ethers.mul(rate);
+      await crowdsale.sendTransaction({ from: investor, gas: 1000000, value: ethers });
+      let balance;
+      balance = await crowdsale.balanceOf(investor);
+      balance.toNumber().should.be.equal(initial.toNumber());
+      const logs = await crowdsale.burnTokens(investor, { from: otherInvestor }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+      balance = await crowdsale.balanceOf(investor);
+      balance.toNumber().should.be.equal(initial.toNumber());
+    });
+
+    it('owner withdraw', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      const ethers = ether(100);
+      const initialBalance = web3.eth.getBalance(owner);
+      await crowdsale.sendTransaction({ from: investor, value: ethers });
+      await crowdsale.withdraw({ from: owner });
+      const finalBalance = web3.eth.getBalance(owner);
+      const expected = initialBalance.add(ethers);
+      (Math.round(finalBalance.toNumber() / 10 ** 18)).should.be.equal(Math.round(expected.toNumber() / 10 ** 18));
+    });
+
+    it('not allow to withdraw for non owners', async () => {
+      const crowdsale = await Token.new();
+      const logs = await crowdsale.withdraw({ from: otherInvestor }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+
+    it('should revert transfer if owner has no tokens', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.finishIco({ from: owner });
+      const logs = await crowdsale.transfer(investor, 1, { from: investor }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+
+    it('emits a transfer event', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      const ethers = ether(2.333333333);
+      const rate = await crowdsale.rate();
+      const tokens = ethers.mul(rate);
+      await crowdsale.sendTransaction({ from: investor, gas: 1000000, value: ethers });
+      await crowdsale.finishIco({ from: owner });
+      const { logs } = await crowdsale.transfer(otherInvestor, tokens, { from: investor });
+      logs[0].event.should.be.equal('Transfer');
+      logs[0].args.from.should.be.equal(investor);
+      logs[0].args.to.should.be.equal(otherInvestor);
+      logs[0].args.value.toNumber().should.be.equal(tokens.toNumber());
+    });
+
+    it('reverts transfer if recipient is zero', async () => {
+      const crowdsale = await Token.new();
+      const z = '0x0000000000000000000000000000000000000000';
+      await crowdsale.startIco({ from: owner });
+      let logs
+      logs = await crowdsale.sendTransaction({ from: z, gas: 1000000, value: ether(1) }).catch((e) => e);
+      logs.message.should.be.equal('sender account not recognized');
+      await crowdsale.finishIco({ from: owner });
+      logs = await crowdsale.transfer(z, 1, { from: investor }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+
+    it('reverts transfer if recipient is null', async () => {
+      const crowdsale = await Token.new();
+      const z = null;
+      await crowdsale.startIco({ from: owner });
+      let logs
+      logs = await crowdsale.sendTransaction({ from: z, gas: 1000000, value: ether(1) }).catch((e) => e);
+      logs.message.should.be.equal('invalid address');
+      await crowdsale.finishIco({ from: owner });
+      logs = await crowdsale.transfer(z, 1, { from: investor }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+
+    it('reverts transfer if sending zero', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      let logs
+      logs = await crowdsale.sendTransaction({ from: investor, gas: 1000000, value: ether(0) }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+      await crowdsale.finishIco({ from: owner });
+      logs = await crowdsale.transfer(otherInvestor, 0, { from: investor }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+
+    it('reverts transfer if sending below zero', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.sendTransaction({ from: investor, gas: 1000000, value: ether(100) });
+      await crowdsale.finishIco({ from: owner });
+      const logs = await crowdsale.transfer(otherInvestor, -1, { from: investor }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+
+    it('reverts transfer if sending overflow', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.sendTransaction({ from: investor, gas: 1000000, value: ether(100) });
+      await crowdsale.finishIco({ from: owner });
+      const logs = await crowdsale.transfer(otherInvestor, (2**256), { from: investor }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+  });
+
+  describe('allowances', () => {
+  });
+
+  describe('transfer from', () => {
   });
 });
