@@ -29,7 +29,6 @@ _private
 static/admin
 *.exe
 *.jpg
-*.png
 .next
 stats.txt
 .env

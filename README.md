@@ -21,7 +21,7 @@ Sales through this contract/ dApp after the event should then be imported into m
 
 ## Why?
 
-![Token Sale Strater dApp]](media/dapp.png)
+![Token Sale Strater dApp](media/dapp.png)
 
 We have too many repeating functions for each new contract. Why instead not to modularize everything and 
 make a contract for the just a single specific job of the major contract? Think of this project as a library-driven 
