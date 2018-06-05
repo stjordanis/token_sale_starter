@@ -9,6 +9,7 @@ import ListItem  from 'grommet/components/ListItem'
 
 import Async from 'components/Async'
 import env from 'env'
+import { icoMap } from 'utils/maps'
 const RecentTransactions = Async(() => import('components/events/RecentTransactions'))
 
 class CoinStats extends PureComponent {
@@ -20,7 +21,7 @@ class CoinStats extends PureComponent {
       network: null,
       crowdsaleAddress: null,
       owner: null,
-      hasClosed: null,
+      status: null,
       weiRaised: null,
       name: null,
       symbol: null,
@@ -28,6 +29,8 @@ class CoinStats extends PureComponent {
       rate: null,
       bonusRate: null
     }
+
+    this.mounted = false
 
     this.getSymbol = this.getSymbol.bind(this)
     this.getName = this.getName.bind(this)
@@ -54,12 +57,22 @@ class CoinStats extends PureComponent {
     this.getOwner()
   }
 
+  componentWillMount() {
+    this.mounted = true
+  }
+
+  componentWillUnmount() {
+    this.mounted = false
+  }
+
   getTotalSupply() {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.totalSupply().then((supply) => {
-        this.setState({
-          supply: supply.toNumber()
-        })
+        if (this.mounted) {
+          this.setState({
+            supply: supply.toNumber()
+          })
+        }
       })
     })
 
@@ -71,9 +84,11 @@ class CoinStats extends PureComponent {
   getOwner() {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.owner().then((res) => {
-        this.setState({
-          owner: res
-        })
+        if (this.mounted) {
+          this.setState({
+            owner: res
+          })
+        }
       })
     })
 
@@ -84,9 +99,11 @@ class CoinStats extends PureComponent {
 
   getAddress() {
     this.props.Token.deployed().then(async (crowdsale) => {
-      this.setState({
-        crowdsaleAddress: crowdsale.address
-      })
+      if (this.mounted) {
+        this.setState({
+          crowdsaleAddress: crowdsale.address
+        })
+      }
     })
 
     setTimeout(() => {
@@ -95,14 +112,13 @@ class CoinStats extends PureComponent {
   }
 
   getHasClosed() {
-    this.props.Token.deployed().then(async (crowdsale) => {
-      crowdsale.icoState.call().then((res) => {
-        console.log('cap reached')
-        console.log(res)
-
-        this.setState({
-          capReached: res.toString()
-        })
+    this.props.Token.deployed().then((crowdsale) => {
+      crowdsale.icoState.call().then(async (res) => {
+        if (this.mounted) {
+          this.setState({
+            status: res ? await icoMap(res) : ''
+          })
+        }
       })
     })
 
@@ -114,9 +130,11 @@ class CoinStats extends PureComponent {
   getRaised() {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.weiRaised.call().then((res) => {
-        this.setState({
-          weiRaised: res.toNumber()
-        })
+        if (this.mounted) {
+          this.setState({
+            weiRaised: res.toNumber()
+          })
+        }
       })
     })
 
@@ -128,9 +146,11 @@ class CoinStats extends PureComponent {
   getSymbol() {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.symbol.call().then((res) => {
-        this.setState({
-          symbol: this.props.web3.web3.toUtf8(res)
-        })
+        if (this.mounted) {
+          this.setState({
+            symbol: this.props.web3.web3.toUtf8(res)
+          })
+        }
       })
     })
 
@@ -142,9 +162,11 @@ class CoinStats extends PureComponent {
   getName() {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.tokenName.call().then((res) => {
-        this.setState({
-          name: this.props.web3.web3.toUtf8(res)
-        })
+        if (this.mounted) {
+          this.setState({
+            name: this.props.web3.web3.toUtf8(res)
+          })
+        }
       })
     })
 
@@ -156,9 +178,11 @@ class CoinStats extends PureComponent {
   getDecimals() {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.decimals.call().then((res) => {
-        this.setState({
-          decimals: res.toNumber()
-        })
+        if (this.mounted) {
+          this.setState({
+            decimals: res.toNumber()
+          })
+        }
       })
     })
 
@@ -170,9 +194,11 @@ class CoinStats extends PureComponent {
   getRate() {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.rate.call().then((res) => {
-        this.setState({
-          rate: res.toNumber()
-        })
+        if (this.mounted) {
+          this.setState({
+            rate: res.toNumber()
+          })
+        }
       })
     })
 
@@ -234,7 +260,7 @@ class CoinStats extends PureComponent {
         </List>
         <Label>ICO status</Label>
         <List>
-          <ListItem>Has ended: { this.state.hasClosed }</ListItem>
+          <ListItem>Status: { this.state.status }</ListItem>
           <ListItem>ETH Raised: { this.props.web3.web3.fromWei(this.state.weiRaised, 'ether') } ETH</ListItem>
         </List>
         <RecentTransactions />

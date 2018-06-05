@@ -2,13 +2,15 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import web3utils from 'web3-utils'
 
-import Toast from 'grommet/components/Toast'
 import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
 import TextInput from 'grommet/components/TextInput'
-import Button from 'grommet/components/Button'
 import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
+
+import Async from 'components/Async'
+const Submit = Async(() => import('components/Submit'))
+const Popup = Async(() => import('components/Popup'))
 
 class RemoveFromWhitelist extends Component {
   constructor() {
@@ -60,6 +62,30 @@ class RemoveFromWhitelist extends Component {
     }, 2000)
   }
 
+  msg = (type, msg) => {
+    this.setState({ modalOpen: true })
+    switch (type) {
+      case 0:
+        if (msg.message.indexOf('User denied') !== -1) {
+          this.setState({ failure: 'Tx rejected.' })
+        } else {
+          this.setState({ failure: `Error occurred: ${msg.message}` })
+        }
+        this.resetToast()
+        return
+      case 1:
+        this.setState({ success: `Success! Your tx: ${msg.tx}` })
+        this.resetToast()
+        return
+      case 3:
+        this.setState({ failure: 'Form has errors!' })
+        this.resetToast()
+        return
+      default:
+        this.resetToast()
+    }
+  }
+
   handleSubmit(event) {
     event.preventDefault()
 
@@ -70,26 +96,13 @@ class RemoveFromWhitelist extends Component {
           from: this.props.account,
           gas: _gas,
           gasPrice: this.props.gasPrice
-        })
-        .then((receipt) => {
-          // console.log('Success: ', receipt)
-          this.setState({
-            modalOpen: true,
-            success: `Success! Your tx: ${receipt.tx}`
-          })
-        })
-        .catch((error) => {
-          // console.log(error.message)
-          this.setState({
-            modalOpen: true,
-            failure: `Error occurred: ${error.message}`
-          })
+        }).then((receipt) => {
+          this.msg(1, receipt)
+        }).catch((error) => {
+          this.msg(0, error)
         })
       } else {
-        this.setState({
-          modalOpen: true,
-          failure: 'Please check the form.'
-        })
+        this.msg(0, { message: 'Form has errors' })
       }
     })
   }
@@ -112,20 +125,12 @@ class RemoveFromWhitelist extends Component {
               placeHolder='Address'/>
           </Box>
           <Box pad='small' align='center'>
-            {
-              this.state.loading ? 'Loading...'
-              : <Button primary={true} type='submit' label='Save' />
-            }
+          <Submit loading={this.state.loading} label='Delete' />
           </Box>
         </Form>
         : <Label>This user isn't on whitelist, nothing to do.</Label>
         }
-        { this.state.modalOpen && <Toast
-          status={this.state.success ? 'ok' : 'critical' }>
-            <p>{ this.state.success ? this.state.success : null }</p>
-            <p>{ this.state.failure ? this.state.failure : null }</p>
-          </Toast>
-        }
+        <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
       </Box>
     )
   }

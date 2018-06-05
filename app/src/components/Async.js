@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 
-import Box  from 'grommet/components/Box'
-import Spinning  from 'grommet/components/icons/Spinning'
+import { GridLoader } from 'react-spinners'
 
 export default function Async(imported) {
   class Async extends Component {
@@ -26,7 +25,7 @@ export default function Async(imported) {
     render() {
       const C = this.state.component
 
-      return C ? <C {...this.props} /> : <Box align='center'><Spinning size='medium' /></Box>
+      return C ? <C {...this.props} /> : <div align='center'><GridLoader color={'#123abc'} loading={this.state.loading} /></div>
     }
   }
 

@@ -32,6 +32,8 @@ contract Crowdsale is Basic, Ownable, ICOState {
 
     constructor() public {
         shouldWhitelist = false;
+        symbol = "TOK";
+        tokenName = "TestToken";
         rate = 3;
         decimals = 18;
         transfersAllowed = false;

@@ -3,17 +3,18 @@ import { connect } from 'react-redux'
 import axios from 'axios'
 import Web3Utils from 'web3-utils'
 
-import Toast from 'grommet/components/Toast'
 import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
 import TextInput from 'grommet/components/TextInput'
-import Button from 'grommet/components/Button'
 import List from 'grommet/components/List'
 import ListItem  from 'grommet/components/ListItem'
 import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
 
+import Async from 'components/Async'
 import env from 'env'
+const Submit = Async(() => import('components/Submit'))
+const Popup = Async(() => import('components/Popup'))
 
 class BuyIcoTokens extends PureComponent {
   constructor(props) {
@@ -68,10 +69,7 @@ class BuyIcoTokens extends PureComponent {
           value: this.props.web3.web3.toWei(this.state.amountEth, 'ether')
         }, (err, receipt) => {
           if (err) {
-            this.setState({
-              modalOpen: true,
-              failure: `Error occurred: ${err.message}`
-            })
+            this.msg(0, err)
           }
         })
 
@@ -84,43 +82,63 @@ class BuyIcoTokens extends PureComponent {
           data: '0x00'
         }, (err, receipt) => {
           if (!err) {
-            this.setState({
-              modalOpen: true,
-              success: `Success! Your tx: ${receipt}`
-            })
+            this.msg(1, receipt)
           } else {
-            if (err.message.indexOf('User denied') !== -1) {
-              this.setState({
-                modalOpen: true,
-                failure: 'Tx cancelled.'
-              })
-            } else {
-              this.setState({
-                modalOpen: true,
-                failure: `Error occurred: ${err.message}`
-              })
-            }
+            this.msg(0, err)
           }
         })
       } else {
-        this.setState({
-          modalOpen: true,
-          failure: `Minimum contribution is ${env.MINIMUM_CONTRIBUTION} ETH`
-        })
+        this.msg(0, { message: `Minimum contribution is ${env.MINIMUM_CONTRIBUTION} ETH` })
       }
     })
 
   }
 
+  resetToast = () => {
+    setTimeout(() => {
+      if (this.state.modalOpen) {
+        this.setState({
+          modalOpen: false,
+          loading: false,
+          success: '',
+          failure: ''
+        })
+      }
+    }, 5000)
+  }
+
+  msg = (type, msg) => {
+    this.setState({ modalOpen: true })
+    switch (type) {
+      case 0:
+        if (msg.message.indexOf('User denied') !== -1) {
+          this.setState({ failure: 'Tx rejected.' })
+        } else {
+          this.setState({ failure: `Error occurred: ${msg.message}` })
+        }
+        this.resetToast()
+        return
+      case 1:
+        this.setState({ success: `Success! Your tx: ${msg.tx}` })
+        this.resetToast()
+        return
+      case 3:
+        this.setState({ failure: 'Form has errors!' })
+        this.resetToast()
+        return
+      default:
+        this.resetToast()
+    }
+  }
+
   render() {
     return (
       <Box>
-        <Heading>Buy {env.TOKEN_NAME} Tokens</Heading>
+        <Heading>Get { env.TOKEN_NAME } Tokens</Heading>
         <List>
           <ListItem>1 ETH = { this.state.priceEth } USD</ListItem>
-          <ListItem>1 PWP = { (1 / env.RATE).toFixed(6) } ETH</ListItem>
-          <ListItem>1 PWP = $US { (this.state.priceEth / env.RATE).toFixed(2) }</ListItem>
-          <ListItem>1 PWP = $US { (this.state.priceEth / env.BONUS_RATE).toFixed(2) } (bonus rate)</ListItem>
+          <ListItem>1 { env.TOKEN_NAME } = { (1 / env.RATE).toFixed(6) } ETH</ListItem>
+          <ListItem>1 { env.TOKEN_NAME } = $US { (this.state.priceEth / env.RATE).toFixed(2) }</ListItem>
         </List>
         <Box align='center'>
           <Form onSubmit={this.handleSubmit}>
@@ -133,23 +151,16 @@ class BuyIcoTokens extends PureComponent {
                 step='0.01'
                 onDOMChange={this.handleChange}
                 value={this.state.amountEth}
-                placeHolder='Amount to buy' />
+                placeHolder='Ethers' />
               <Label>
                 { this.state.amountEth > 0 ? `${this.state.amountEth} ETH = ` : '' }
                 { this.state.amountTokens > 0 ? `${this.state.amountTokens} PWP` : '' }
               </Label>
             </Box>
-            <Box pad='small' align='center'>
-              <Button primary={true} type='submit' label='Buy tokens' />
-            </Box>
+            <Submit loading={this.state.loading} label='Delete' />
           </Form>
         </Box>
-          { this.state.modalOpen && <Toast
-            status={this.state.success ? 'ok' : 'critical' }>
-              <p>{ this.state.success ? this.state.success : null }</p>
-              <p>{ this.state.failure ? this.state.failure : null }</p>
-            </Toast>
-          }
+        <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
       </Box>
     )
   }

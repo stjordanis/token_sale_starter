@@ -2,15 +2,16 @@ import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import Web3Utils from 'web3-utils'
 
-import Toast from 'grommet/components/Toast'
 import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
 import TextInput from 'grommet/components/TextInput'
-import Button from 'grommet/components/Button'
 import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
 
+import Async from 'components/Async'
 import env from 'env'
+const Submit = Async(() => import('components/Submit'))
+const Popup = Async(() => import('components/Popup'))
 
 class TransferTokens extends PureComponent {
   constructor(props) {
@@ -49,26 +50,51 @@ class TransferTokens extends PureComponent {
       if (this.state.amountTokens > 0 && Web3Utils.isAddress(this.state.to)) {
         crowdsale.transfer(this.state.to, this.state.amountTokens * 10 ** env.DECIMALS, { from: this.props.account })
           .then((receipt) => {
-            // console.log(receipt)
-            this.setState({
-              modalOpen: true,
-              success: `Success! Your tx: ${receipt.tx}`
-            })
-        })
-        .catch((err) => {
-          // console.log(err)
-          this.setState({
-            modalOpen: true,
-            failure: `Error occurred: ${err.message}`
-          })
+            this.msg(1, receipt)
+        }).catch((err) => {
+          this.msg(0, err)
         })
       } else {
-        this.setState({
-          modalOpen: true,
-          failure: `Amount shoulnd't be empty`
-        })
+        this.msg(0, { message: `Amount shoulnd't be empty` })
       }
     })
+  }
+
+  resetToast = () => {
+    setTimeout(() => {
+      if (this.state.modalOpen) {
+        this.setState({
+          modalOpen: false,
+          loading: false,
+          success: '',
+          failure: ''
+        })
+      }
+    }, 5000)
+  }
+
+  msg = (type, msg) => {
+    this.setState({ modalOpen: true })
+    switch (type) {
+      case 0:
+        if (msg.message.indexOf('User denied') !== -1) {
+          this.setState({ failure: 'Tx rejected.' })
+        } else {
+          this.setState({ failure: `Error occurred: ${msg.message}` })
+        }
+        this.resetToast()
+        return
+      case 1:
+        this.setState({ success: `Success! Your tx: ${msg.tx}` })
+        this.resetToast()
+        return
+      case 3:
+        this.setState({ failure: 'Form has errors!' })
+        this.resetToast()
+        return
+      default:
+        this.resetToast()
+    }
   }
 
   render() {
@@ -100,17 +126,10 @@ class TransferTokens extends PureComponent {
                 value={this.state.amountTokens}
                 placeHolder='Tokens to send' />
             </Box>
-            <Box pad='small' align='center'>
-              <Button primary={true} type='submit' label='Send' />
-            </Box>
+            <Submit loading={this.state.loading} label='Delete' />
           </Form>
         </Box>
-          { this.state.modalOpen && <Toast
-            status={this.state.success ? 'ok' : 'critical' }>
-              <p>{ this.state.success ? this.state.success : null }</p>
-              <p>{ this.state.failure ? this.state.failure : null }</p>
-            </Toast>
-          }
+        <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
       </Box>
     )
   }

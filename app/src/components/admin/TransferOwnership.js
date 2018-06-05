@@ -1,13 +1,15 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import Toast from 'grommet/components/Toast'
 import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
 import TextInput from 'grommet/components/TextInput'
-import Button from 'grommet/components/Button'
 import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
+
+import Async from 'components/Async'
+const Submit = Async(() => import('components/Submit'))
+const Popup = Async(() => import('components/Popup'))
 
 class TransferOwnership extends Component {
   constructor(props) {
@@ -33,6 +35,43 @@ class TransferOwnership extends Component {
     })
   }
 
+  resetToast = () => {
+    setTimeout(() => {
+      if (this.state.modalOpen) {
+        this.setState({
+          modalOpen: false,
+          loading: false,
+          success: '',
+          failure: ''
+        })
+      }
+    }, 5000)
+  }
+
+  msg = (type, msg) => {
+    this.setState({ modalOpen: true })
+    switch (type) {
+      case 0:
+        if (msg.message.indexOf('User denied') !== -1) {
+          this.setState({ failure: 'Tx rejected.' })
+        } else {
+          this.setState({ failure: `Error occurred: ${msg.message}` })
+        }
+        this.resetToast()
+        return
+      case 1:
+        this.setState({ success: `Success! Your tx: ${msg.tx}` })
+        this.resetToast()
+        return
+      case 3:
+        this.setState({ failure: 'Form has errors!' })
+        this.resetToast()
+        return
+      default:
+        this.resetToast()
+    }
+  }
+
   handleSubmit(event) {
     event.preventDefault()
 
@@ -44,26 +83,15 @@ class TransferOwnership extends Component {
     this.props.Token.deployed().then(async (crowdsale) => {
       if (this.state.to != null) {
         const _gas = await crowdsale.transferOwnership.estimateGas(this.state.to)
-        crowdsale.transferOwnership(this.state.to, { from: this.props.account, gas: _gas, gasPrice: this.props.gasPrice })
-          .then((receipt) => {
-            // console.log(receipt)
-            this.setState({
-              modalOpen: true,
-              success: `Success! Your tx: ${receipt.tx}`
-            })
-        })
-        .catch((err) => {
-          // console.log(err)
-          this.setState({
-            modalOpen: true,
-            failure: `Error occurred: ${err.message}`
-          })
+        crowdsale.transferOwnership(this.state.to, {
+          from: this.props.account, gas: _gas, gasPrice: this.props.gasPrice
+        }).then((receipt) => {
+          this.msg(1, receipt)
+        }).catch((err) => {
+          this.msg(0, err)
         })
       } else {
-        this.setState({
-          modalOpen: true,
-          failure: `If you want to transfer ownership, you need to fill the form.`
-        })
+        this.msg(0, { message: 'Form has errors' })
       }
     })
   }
@@ -85,17 +113,10 @@ class TransferOwnership extends Component {
                 value={this.state.to}
                 placeHolder='New owner address' />
             </Box>
-            <Box pad='small' align='center'>
-              <Button primary={true} type='submit' label='Do it' />
-            </Box>
+            <Submit loading={this.state.loading} label='Delete' />
           </Form>
         </Box>
-          { this.state.modalOpen && <Toast
-            status={this.state.success ? 'ok' : 'critical' }>
-              <p>{ this.state.success ? this.state.success : null }</p>
-              <p>{ this.state.failure ? this.state.failure : null }</p>
-            </Toast>
-          }
+        <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
       </Box>
     )
   }

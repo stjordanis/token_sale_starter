@@ -12,7 +12,7 @@ import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
 
-class AddToWhitelist extends Component {
+class SetParams extends Component {
   constructor() {
     super()
     this.state = {
@@ -158,4 +158,4 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps)(AddToWhitelist)
+export default connect(mapStateToProps)(SetParams)
