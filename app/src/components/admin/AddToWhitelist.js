@@ -4,13 +4,13 @@ import web3utils from 'web3-utils'
 
 import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
-import TextInput from 'grommet/components/TextInput'
 import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
 
 import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
+const Input = Async(() => import('components/Input'))
 
 class AddToWhitelist extends Component {
   constructor() {
@@ -125,21 +125,8 @@ class AddToWhitelist extends Component {
       <Box align='center'>
         <Heading>Add to Whitelist</Heading>
         { !this.state.status ? <Form onSubmit={this.handleSubmit}>
-          <Box pad='small' align='center'>
-            <Label labelFor="whitelist">Whom to add:</Label>
-          </Box>
-          <Box pad='small' align='center'>
-            <TextInput
-              id='whitelist'
-              type='text'
-              onDOMChange={this.handleChange}
-              value={this.state.toWhitelist}
-              name='toWhitelist'
-              placeHolder='Address'/>
-          </Box>
-          <Box pad='small' align='center'>
-          <Submit loading={this.state.loading} label='Delete' />
-          </Box>
+          <Input id='toWhitelist' req={true} label='Address' handleChange={this.handleChange} />
+          <Submit loading={this.state.loading} label='Set' />
         </Form>
         : <Label>This user is already whitelisted</Label>
         }

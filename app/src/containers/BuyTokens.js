@@ -5,7 +5,6 @@ import Web3Utils from 'web3-utils'
 
 import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
-import TextInput from 'grommet/components/TextInput'
 import List from 'grommet/components/List'
 import ListItem  from 'grommet/components/ListItem'
 import Label  from 'grommet/components/Label'
@@ -15,6 +14,7 @@ import Async from 'components/Async'
 import env from 'env'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
+const Input = Async(() => import('components/Input'))
 
 class BuyIcoTokens extends PureComponent {
   constructor(props) {
@@ -170,21 +170,11 @@ class BuyIcoTokens extends PureComponent {
         </List>
         <Box align='center'>
           <Form onSubmit={this.handleSubmit}>
-            <Box pad='small' align='center'>
-              <Label labelFor="amountInput">Your Contribution:</Label>
-            </Box>
-            <Box pad='small' align='center'>
-              <TextInput id='amountInput'
-                type='number'
-                step='0.01'
-                onDOMChange={this.handleChange}
-                value={this.state.amountEth}
-                placeHolder='Ethers' />
-              <Label>
-                { this.state.amountEth > 0 ? `${this.state.amountEth} ETH = ` : '' }
-                { this.state.amountTokens > 0 ? `${this.state.amountTokens} ${env.TOKEN_NAME}` : '' }
-              </Label>
-            </Box>
+            <Input id='amountEth' req={true} label='Ethers' handleChange={this.handleChange} />
+            <Label>
+              { this.state.amountEth > 0 ? `${this.state.amountEth} ETH = ` : '' }
+              { this.state.amountTokens > 0 ? `${this.state.amountTokens} ${env.TOKEN_NAME}` : '' }
+            </Label>
             <Submit loading={this.state.loading} label='Get' />
           </Form>
         </Box>

@@ -3,8 +3,8 @@ import PropTypes from 'prop-types'
 
 import Box from 'grommet/components/Box'
 import Label from 'grommet/components/Label'
-import TextInput from 'grommet/components/TextInput'
 import FormField from 'grommet/components/FormField'
+import TextInput from 'grommet/components/TextInput'
 
 class Input extends PureComponent {
   constructor(props) {

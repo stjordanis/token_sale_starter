@@ -92,7 +92,7 @@ class ManageICO extends Component {
   }
 
   msg = (type, msg) => {
-    if (this.mounted) {
+    
     this.setState({ modalOpen: true })
     switch (type) {
       case 0:
@@ -114,7 +114,6 @@ class ManageICO extends Component {
       default:
         this.resetToast()
     }
-  }
   }
 
   render() {

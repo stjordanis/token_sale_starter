@@ -1,16 +1,15 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import web3utils from 'web3-utils'
 
 import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
-import TextInput from 'grommet/components/TextInput'
 import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
 
 import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
+const Input = Async(() => import('components/Input'))
 
 class SetParams extends Component {
   constructor() {
@@ -19,16 +18,18 @@ class SetParams extends Component {
       modalOpen: null,
       success: '',
       failure: '',
-      toWhitelist: '',
-      status: false,
-      loading: false
+      loading: false,
+      newRate: '',
+      symbol: '',
+      name: '',
+      decimals: '',
+      rate: ''
     }
 
     this.mounted = false
 
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleChange = this.handleChange.bind(this)
-    this.getWhitelistStatus = this.getWhitelistStatus.bind(this)
   }
 
   componentWillMount() {
@@ -45,33 +46,10 @@ class SetParams extends Component {
     const { name } = target
 
     this.setState({
-      [name]: value,
-      loading: true
+      [name]: value
     })
-
-    this.getWhitelistStatus()
   }
-
-  getWhitelistStatus() {
-    if (web3utils.isAddress(this.state.toWhitelist)) {
-      this.props.Token.deployed().then((token) => {
-        token.getWhitelistStatus(this.state.toWhitelist, { from: this.props.account }).then((res) => {
-          this.setState({
-            status: res,
-            loading: false
-          })
-        })
-      })
-      .catch((error) => {
-        console.log('Whitelist query', error)
-      })
-    }
-
-    setTimeout(() => {
-        this.getWhitelistStatus()
-    }, 2000)
-  }
-
+  
   resetToast = () => {
     setTimeout(() => {
       if (this.state.modalOpen) {
@@ -83,6 +61,22 @@ class SetParams extends Component {
         })
       }
     }, 5000)
+  }
+
+  getRate = async () => {
+    this.props.Token.deployed().then(async (crowdsale) => {
+      crowdsale.rate.call().then((res) => {
+        if (this.mounted) {
+          this.setState({
+            rate: res ? res.toNumber() : 'N/A'
+          })
+        }
+      })
+    })
+
+    setTimeout(() => {
+      this.getRate()
+    }, 2000)
   }
 
   msg = (type, msg) => {
@@ -111,11 +105,12 @@ class SetParams extends Component {
 
   handleSubmit(event) {
     event.preventDefault()
+    this.setState({ loading: true })
 
     this.props.Token.deployed().then(async (token) => {
-      if (web3utils.isAddress(this.state.toWhitelist)) {
-        const _gas = await token.addToWhitelist.estimateGas(this.state.toWhitelist)
-        token.addToWhitelist(this.state.toWhitelist, {
+      if (this.state.decimals > 0 && this.state.rate > 0 && this.state.symbol !== '' && this.state.name !== '') {
+        const _gas = await token.setParams.estimateGas(this.state.symbol, this.state.name, this.state.decimals, this.state.rate, { from: this.props.account })
+        token.setParams(this.state.symbol, this.state.name, this.state.decimals, this.state.rate, {
           from: this.props.account,
           gas: _gas,
           gasPrice: this.props.gasPrice
@@ -133,26 +128,14 @@ class SetParams extends Component {
   render() {
     return (
       <Box align='center'>
-        <Heading>Add to Whitelist</Heading>
-        { !this.state.status ? <Form onSubmit={this.handleSubmit}>
-          <Box pad='small' align='center'>
-            <Label labelFor="whitelist">Whom to add:</Label>
-          </Box>
-          <Box pad='small' align='center'>
-            <TextInput
-              id='whitelist'
-              type='text'
-              onDOMChange={this.handleChange}
-              value={this.state.toWhitelist}
-              name='toWhitelist'
-              placeHolder='Address'/>
-          </Box>
-          <Box pad='small' align='center'>
-          <Submit loading={this.state.loading} label='Delete' />
-          </Box>
+        <Heading>Set ICO Parameters</Heading>
+        <Form onSubmit={this.handleSubmit}>
+          <Input id='symbol' req={true} label='Symbol' handleChange={this.handleChange} />
+          <Input id='name' req={true} label='Name' handleChange={this.handleChange} />
+          <Input id='decimals' req={true} label='Decimals' handleChange={this.handleChange} />
+          <Input id='rate' req={true} label='Rate' handleChange={this.handleChange} />
+          <Submit loading={this.state.loading} label='Set' />
         </Form>
-        : <Label>This user is already whitelisted</Label>
-        }
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
       </Box>
     )

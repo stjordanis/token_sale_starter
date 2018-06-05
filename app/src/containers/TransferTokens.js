@@ -4,14 +4,13 @@ import Web3Utils from 'web3-utils'
 
 import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
-import TextInput from 'grommet/components/TextInput'
-import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
 
 import Async from 'components/Async'
 import env from 'env'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
+const Input = Async(() => import('components/Input'))
 
 class TransferTokens extends PureComponent {
   constructor(props) {
@@ -135,29 +134,8 @@ class TransferTokens extends PureComponent {
         <Heading>Send {env.TOKEN_NAME} Tokens</Heading>
         <Box align='center'>
           <Form onSubmit={this.handleSubmit}>
-            <Box pad='small' align='center'>
-              <Label labelFor="toInput">Whom to send:</Label>
-            </Box>
-            <Box pad='small' align='center'>
-              <TextInput id='toInput'
-                type='text'
-                name='to'
-                onDOMChange={this.handleChange}
-                value={this.state.to}
-                placeHolder='Recipient address' />
-            </Box>
-            <Box pad='small' align='center'>
-              <Label labelFor="amountInput">Amount:</Label>
-            </Box>
-            <Box pad='small' align='center'>
-              <TextInput id='amountInput'
-                type='number'
-                step='0.01'
-                name='amountTokens'
-                onDOMChange={this.handleChange}
-                value={this.state.amountTokens}
-                placeHolder='Tokens to send' />
-            </Box>
+            <Input id='to' req={true} label='Recipient address' handleChange={this.handleChange} />
+            <Input id='amountTokens' req={true} label='Tokens to send' handleChange={this.handleChange} />
             <Submit loading={this.state.loading} label='Send' />
           </Form>
         </Box>

@@ -3,13 +3,12 @@ import { connect } from 'react-redux'
 
 import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
-import TextInput from 'grommet/components/TextInput'
-import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
 
 import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
+const Input = Async(() => import('components/Input'))
 
 class TransferOwnership extends Component {
   constructor(props) {
@@ -112,18 +111,8 @@ class TransferOwnership extends Component {
         <Heading>Transfer Ownership</Heading>
         <Box align='center'>
           <Form onSubmit={this.handleSubmit}>
-            <Box pad='small' align='center'>
-              <Label labelFor="toInput">Who is the new owner:</Label>
-            </Box>
-            <Box pad='small' align='center'>
-              <TextInput id='toInput'
-                type='text'
-                name='to'
-                onDOMChange={this.handleChange}
-                value={this.state.to}
-                placeHolder='New owner address' />
-            </Box>
-            <Submit loading={this.state.loading} label='Delete' />
+            <Input id='to' req={true} label='New owner address' handleChange={this.handleChange} />
+            <Submit loading={this.state.loading} label='Transfer' />
           </Form>
         </Box>
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
