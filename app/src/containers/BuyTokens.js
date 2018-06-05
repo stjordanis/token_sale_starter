@@ -27,34 +27,34 @@ class BuyIcoTokens extends PureComponent {
       success: '',
       failure: '',
       rate: null,
-      modalOpen: false
+      modalOpen: false,
+      decimals: null
     }
 
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.getRate = this.getRate.bind(this)
+    this.getDecimals = this.getDecimals.bind(this)
   }
 
   async componentDidMount() {
     axios.all([
       axios.get('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
-    ])
-      .then(axios.spread((eth) => {
-        this.setState({
-          priceEth: eth.data.USD
-        })
-      }))
-      .catch((error) => {
-        console.log(error)
-        this.setState({
-          failure: error
-        })
+    ]).then(axios.spread((eth) => {
+      this.setState({
+        priceEth: eth.data.USD
       })
+    })).catch((error) => {
+      this.msg(0, error)
+    })
+    await this.getRate()
+    await this.getDecimals()
   }
 
   handleChange(event) {
     this.setState({
       amountEth: event.target.value,
-      amountTokens: (event.target.value * env.RATE).toFixed(env.DECIMALS)
+      amountTokens: (this.state.rate && this.state.decimals) ? (event.target.value * this.state.rate) : 0
     })
   }
 
@@ -131,14 +131,42 @@ class BuyIcoTokens extends PureComponent {
     }
   }
 
+  getRate = async () => {
+    this.props.Token.deployed().then(async (crowdsale) => {
+      crowdsale.rate.call().then((res) => {
+        this.setState({
+          rate: res.toNumber()
+        })
+      })
+    })
+
+    setTimeout(() => {
+      this.getRate()
+    }, 2000)
+  }
+
+  getDecimals = async () => {
+    this.props.Token.deployed().then(async (crowdsale) => {
+      crowdsale.decimals.call().then((res) => {
+        this.setState({
+          decimals: res.toNumber()
+        })
+      })
+    })
+
+    setTimeout(() => {
+      this.getDecimals()
+    }, 2000)
+  }
+
   render() {
     return (
       <Box>
         <Heading>Get { env.TOKEN_NAME } Tokens</Heading>
         <List>
           <ListItem>1 ETH = { this.state.priceEth } USD</ListItem>
-          <ListItem>1 { env.TOKEN_NAME } = { (1 / env.RATE).toFixed(6) } ETH</ListItem>
-          <ListItem>1 { env.TOKEN_NAME } = $US { (this.state.priceEth / env.RATE).toFixed(2) }</ListItem>
+          <ListItem>1 { env.TOKEN_NAME } = { this.state.rate ? (1 / this.state.rate).toFixed(6) : 'N/A' } ETH</ListItem>
+          <ListItem>1 { env.TOKEN_NAME } = $US { this.state.rate ? (this.state.priceEth / this.state.rate).toFixed(2) : 'N/A' }</ListItem>
         </List>
         <Box align='center'>
           <Form onSubmit={this.handleSubmit}>
@@ -154,10 +182,10 @@ class BuyIcoTokens extends PureComponent {
                 placeHolder='Ethers' />
               <Label>
                 { this.state.amountEth > 0 ? `${this.state.amountEth} ETH = ` : '' }
-                { this.state.amountTokens > 0 ? `${this.state.amountTokens} PWP` : '' }
+                { this.state.amountTokens > 0 ? `${this.state.amountTokens} ${env.TOKEN_NAME}` : '' }
               </Label>
             </Box>
-            <Submit loading={this.state.loading} label='Delete' />
+            <Submit loading={this.state.loading} label='Get' />
           </Form>
         </Box>
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />

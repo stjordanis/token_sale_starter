@@ -16,17 +16,46 @@ class RecentTransactions extends Component {
     super(props)
     this.state = {
       transactions: [],
-      sortAsc: false
+      sortAsc: false,
+      decimals: null
     }
 
+    this.mounted = false
+
     this.fetchTransactions = this.fetchTransactions.bind(this)
+    this.getDecimals = this.getDecimals.bind(this)
   }
 
   async componentDidMount() {
-    this.fetchTransactions()
+    await this.fetchTransactions()
+    await this.getDecimals()
   }
 
-  fetchTransactions() {
+  componentWillMount() {
+    this.mounted = true
+  }
+
+  componentWillUnmount() {
+    this.mounted = false
+  }
+
+  getDecimals = async () => {
+    this.props.Token.deployed().then(async (crowdsale) => {
+      crowdsale.decimals.call().then((res) => {
+        if (this.mounted) {
+          this.setState({
+            decimals: res ? res.toNumber() : 'N/A'
+          })
+        }
+      })
+    })
+
+    setTimeout(() => {
+      this.getDecimals()
+    }, 2000)
+  }
+
+  fetchTransactions = async () => {
     this.props.web3.web3.eth.getBlockNumber((latestBlock) => {
       this.props.Token.deployed().then((crowdsale) => {
         crowdsale.allEvents({ fromBlock: 0, toBlock: 'latest' })
@@ -42,7 +71,7 @@ class RecentTransactions extends Component {
                 hash: event.transactionHash,
                 from: event.args.from,
                 to: event.args.to,
-                amount: event.event === 'Transfer' ? event.args.value.toNumber() / 10 ** env.DECIMALS : '',
+                amount: event.event === 'Transfer' ? event.args.value.toNumber() / 10 ** this.state.decimals : '',
                 type: event.type
                 // time: moment.unix(event.args._timestamp.toNumber()).fromNow(),
                 // unix: event.args._timestamp.toNumber(),
@@ -65,7 +94,7 @@ class RecentTransactions extends Component {
         <td>{transaction.hash.substring(0, 24)+'...'}</td>
         <td>{transaction.from === this.props.account ? `${transaction.from.substring(0, 20)}...` : `${transaction.from.substring(0, 20)}...`}</td>
         <td>{transaction.to === this.props.account ? `${transaction.to.substring(0, 20)}...` : `${transaction.to.substring(0, 20)}...`}</td>
-        <td>{transaction.amount}</td>
+        <td>{transaction.amount }</td>
         <td>{transaction.type}</td>
       </TableRow>
     ))

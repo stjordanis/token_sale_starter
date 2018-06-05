@@ -21,11 +21,21 @@ class ManageICO extends Component {
       failure: '',
       loading: false,
       modalOpen: false,
-      action: null
+      action: ''
     }
+
+    this.mounted = false
 
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+  }
+
+  componentWillMount() {
+    this.mounted = true
+  }
+
+  componentWillUnmount() {
+    this.mounted = false
   }
 
   handleChange = (event) => {
@@ -82,6 +92,7 @@ class ManageICO extends Component {
   }
 
   msg = (type, msg) => {
+    if (this.mounted) {
     this.setState({ modalOpen: true })
     switch (type) {
       case 0:
@@ -104,6 +115,7 @@ class ManageICO extends Component {
         this.resetToast()
     }
   }
+  }
 
   render() {
     const funcs = [
@@ -125,14 +137,14 @@ class ManageICO extends Component {
               <Label labelFor="action">Action:</Label>
             </Box>
             <Box pad='small' align='center'>
-            <Select id={this.state.action}
-              name={this.state.action}
+            <Select
+              name='action'
               onChange={this.handleChange}
               value={this.state.action}
               options={funcs}
               placeHolder='Select an action' />
             </Box>
-            <Submit loading={this.state.loading} label='Delete' />
+            <Submit loading={this.state.loading} label='Set' />
           </Form>
         </Box>
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />

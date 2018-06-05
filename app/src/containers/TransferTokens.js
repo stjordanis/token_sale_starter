@@ -22,11 +22,27 @@ class TransferTokens extends PureComponent {
       amountTokens: '',
       success: '',
       failure: '',
+      decimals: null,
       modalOpen: false
     }
 
+    this.mounted = false
+
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.getDecimals = this.getDecimals.bind(this)
+  }
+
+  async componentDidMount() {
+    await this.getDecimals()
+  }
+
+  componentWillMount() {
+    this.mounted = true
+  }
+
+  componentWillUnmount() {
+    this.mounted = false
   }
 
   handleChange(event) {
@@ -38,19 +54,35 @@ class TransferTokens extends PureComponent {
     })
   }
 
+  getDecimals = async () => {
+    this.props.Token.deployed().then(async (crowdsale) => {
+      crowdsale.decimals.call().then((res) => {
+        if (this.mounted) {
+          this.setState({
+            decimals: res ? res.toNumber() : 'N/A'
+          })
+        }
+      })
+    })
+
+    setTimeout(() => {
+      this.getDecimals()
+    }, 2000)
+  }
+
   handleSubmit(event) {
     event.preventDefault()
-
-    this.setState({
-      success: '',
-      failure: ''
-    })
+    this.setState({ loading: true })
 
     this.props.Token.deployed().then(async (crowdsale) => {
       if (this.state.amountTokens > 0 && Web3Utils.isAddress(this.state.to)) {
-        crowdsale.transfer(this.state.to, this.state.amountTokens * 10 ** env.DECIMALS, { from: this.props.account })
-          .then((receipt) => {
-            this.msg(1, receipt)
+        const _gas = await crowdsale.transfer.estimateGas(this.state.to, this.state.amountTokens * 10 ** this.state.decimals, { from: this.props.account })
+        crowdsale.transfer(this.state.to, this.state.amountTokens * 10 ** this.state.decimals, {
+          from: this.props.account,
+          gas: _gas,
+          gasPrice: this.props.gasPrice
+        }).then((receipt) => {
+          this.msg(1, receipt)
         }).catch((err) => {
           this.msg(0, err)
         })
@@ -126,7 +158,7 @@ class TransferTokens extends PureComponent {
                 value={this.state.amountTokens}
                 placeHolder='Tokens to send' />
             </Box>
-            <Submit loading={this.state.loading} label='Delete' />
+            <Submit loading={this.state.loading} label='Send' />
           </Form>
         </Box>
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
@@ -139,7 +171,8 @@ function mapStateToProps(state) {
   return {
     Token: state.Token,
     account: state.account,
-    web3: state.web3
+    web3: state.web3,
+    gasPrice: state.gasPrice
   }
 }
 

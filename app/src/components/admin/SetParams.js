@@ -24,9 +24,19 @@ class SetParams extends Component {
       loading: false
     }
 
+    this.mounted = false
+
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.getWhitelistStatus = this.getWhitelistStatus.bind(this)
+  }
+
+  componentWillMount() {
+    this.mounted = true
+  }
+
+  componentWillUnmount() {
+    this.mounted = false
   }
 
   handleChange(event) {

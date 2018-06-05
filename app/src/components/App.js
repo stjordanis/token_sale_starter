@@ -24,6 +24,8 @@ const AddToWhitelist = Async(() => import('components/admin/AddToWhitelist'))
 const Admin = Async(() => import('components/admin/Admin'))
 const TransferOwnership = Async(() => import('components/admin/TransferOwnership'))
 const SetParams = Async(() => import('components/admin/SetParams'))
+const ManageICO = Async(() => import('components/admin/ManageICO'))
+const SetRate = Async(() => import('components/admin/SetRate'))
 
 class dApp extends PureComponent {
   constructor(props) {
@@ -92,7 +94,9 @@ class dApp extends PureComponent {
                       <Route exact strict sensitive path='/transfer' component={TransferTokens} />
                       <Route exact strict sensitive path='/admin' component={Admin} />
                       <Route exact strict sensitive path='/params' component={SetParams} />
-                      <Route exact strict sensitive path='/manage' component={TransferOwnership} />
+                      <Route exact strict sensitive path='/manage' component={ManageICO} />
+                      <Route exact strict sensitive path='/rate' component={SetRate} />
+                      <Route exact strict sensitive path='/transfer_ownership' component={TransferOwnership} />
                       <Route exact strict sensitive path='/whitelist_remove' component={RemoveFromWhitelist} />
                       <Route exact strict sensitive path='/whitelist_add' component={AddToWhitelist} />
                       </Switch>

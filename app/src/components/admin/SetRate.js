@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import web3utils from 'web3-utils'
 
 import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
@@ -11,21 +12,23 @@ import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
 
-class TransferOwnership extends Component {
-  constructor(props) {
-    super(props)
-
+class SetRate extends Component {
+  constructor() {
+    super()
     this.state = {
-      to: '',
+      modalOpen: null,
       success: '',
       failure: '',
-      modalOpen: false
+      toWhitelist: '',
+      status: false,
+      loading: false
     }
 
     this.mounted = false
 
-    this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+    this.getWhitelistStatus = this.getWhitelistStatus.bind(this)
   }
 
   componentWillMount() {
@@ -38,11 +41,35 @@ class TransferOwnership extends Component {
 
   handleChange(event) {
     const { target } = event
+    const value = target.type === 'checkbox' ? target.checked : target.value
     const { name } = target
 
     this.setState({
-      [name]: target.value
+      [name]: value,
+      loading: true
     })
+
+    this.getWhitelistStatus()
+  }
+
+  getWhitelistStatus() {
+    if (web3utils.isAddress(this.state.toWhitelist)) {
+      this.props.Token.deployed().then((token) => {
+        token.getWhitelistStatus(this.state.toWhitelist, { from: this.props.account }).then((res) => {
+          this.setState({
+            status: res,
+            loading: false
+          })
+        })
+      })
+      .catch((error) => {
+        console.log('Whitelist query', error)
+      })
+    }
+
+    setTimeout(() => {
+        this.getWhitelistStatus()
+    }, 2000)
   }
 
   resetToast = () => {
@@ -85,20 +112,17 @@ class TransferOwnership extends Component {
   handleSubmit(event) {
     event.preventDefault()
 
-    this.setState({
-      success: '',
-      failure: ''
-    })
-
-    this.props.Token.deployed().then(async (crowdsale) => {
-      if (this.state.to != null) {
-        const _gas = await crowdsale.transferOwnership.estimateGas(this.state.to)
-        crowdsale.transferOwnership(this.state.to, {
-          from: this.props.account, gas: _gas, gasPrice: this.props.gasPrice
+    this.props.Token.deployed().then(async (token) => {
+      if (web3utils.isAddress(this.state.toWhitelist)) {
+        const _gas = await token.addToWhitelist.estimateGas(this.state.toWhitelist)
+        token.addToWhitelist(this.state.toWhitelist, {
+          from: this.props.account,
+          gas: _gas,
+          gasPrice: this.props.gasPrice
         }).then((receipt) => {
           this.msg(1, receipt)
-        }).catch((err) => {
-          this.msg(0, err)
+        }).catch((error) => {
+          this.msg(0, error)
         })
       } else {
         this.msg(0, { message: 'Form has errors' })
@@ -109,23 +133,26 @@ class TransferOwnership extends Component {
   render() {
     return (
       <Box align='center'>
-        <Heading>Transfer Ownership</Heading>
-        <Box align='center'>
-          <Form onSubmit={this.handleSubmit}>
-            <Box pad='small' align='center'>
-              <Label labelFor="toInput">Who is the new owner:</Label>
-            </Box>
-            <Box pad='small' align='center'>
-              <TextInput id='toInput'
-                type='text'
-                name='to'
-                onDOMChange={this.handleChange}
-                value={this.state.to}
-                placeHolder='New owner address' />
-            </Box>
-            <Submit loading={this.state.loading} label='Delete' />
-          </Form>
-        </Box>
+        <Heading>Add to Whitelist</Heading>
+        { !this.state.status ? <Form onSubmit={this.handleSubmit}>
+          <Box pad='small' align='center'>
+            <Label labelFor="whitelist">Whom to add:</Label>
+          </Box>
+          <Box pad='small' align='center'>
+            <TextInput
+              id='whitelist'
+              type='text'
+              onDOMChange={this.handleChange}
+              value={this.state.toWhitelist}
+              name='toWhitelist'
+              placeHolder='Address'/>
+          </Box>
+          <Box pad='small' align='center'>
+          <Submit loading={this.state.loading} label='Delete' />
+          </Box>
+        </Form>
+        : <Label>This user is already whitelisted</Label>
+        }
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
       </Box>
     )
@@ -134,11 +161,11 @@ class TransferOwnership extends Component {
 
 function mapStateToProps(state) {
   return {
+    web3: state.web3,
     Token: state.Token,
     account: state.account,
-    web3: state.web3,
     gasPrice: state.gasPrice
   }
 }
 
-export default connect(mapStateToProps)(TransferOwnership)
+export default connect(mapStateToProps)(SetRate)

@@ -67,12 +67,12 @@ class CoinStats extends PureComponent {
 
   getTotalSupply() {
     this.props.Token.deployed().then(async (crowdsale) => {
-      crowdsale.totalSupply().then((supply) => {
-        if (this.mounted) {
-          this.setState({
-            supply: supply.toNumber()
-          })
-        }
+      crowdsale._totalSupply().then((supply) => {
+        console.log('supply')
+        console.log(supply.toNumber())
+        this.setState({
+          supply: supply ? supply.toNumber() : 'N/A'
+        })
       })
     })
 
@@ -132,7 +132,7 @@ class CoinStats extends PureComponent {
       crowdsale.weiRaised.call().then((res) => {
         if (this.mounted) {
           this.setState({
-            weiRaised: res.toNumber()
+            weiRaised: res ? res.toNumber() : 'N/A'
           })
         }
       })
@@ -180,7 +180,7 @@ class CoinStats extends PureComponent {
       crowdsale.decimals.call().then((res) => {
         if (this.mounted) {
           this.setState({
-            decimals: res.toNumber()
+            decimals: res ? res.toNumber() : 'N/A'
           })
         }
       })
@@ -196,7 +196,7 @@ class CoinStats extends PureComponent {
       crowdsale.rate.call().then((res) => {
         if (this.mounted) {
           this.setState({
-            rate: res.toNumber()
+            rate: res ? res.toNumber() : 'N/A'
           })
         }
       })
@@ -256,7 +256,7 @@ class CoinStats extends PureComponent {
           <ListItem>Rate: {this.state.rate}</ListItem>
           <ListItem>Crowdsale Address: {this.state.crowdsaleAddress}</ListItem>
           <ListItem>Owner: {this.state.owner}</ListItem>
-          <ListItem>Tokens in Circulation: { this.state.supply / 10 ** env.DECIMALS} {env.TOKEN_NAME}</ListItem>
+          <ListItem>Tokens in Circulation: { this.state.supply ? (this.state.supply / 10 ** this.state.decimals) : 0} {env.TOKEN_NAME}</ListItem>
         </List>
         <Label>ICO status</Label>
         <List>

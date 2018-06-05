@@ -1,7 +1,5 @@
 module.exports = {
   TOKEN_NAME: 'TOK',
-  DECIMALS: 18,
-  RATE: 1000,
   MINIMUM_CONTRIBUTION: 0.1,
   GA: 'UA-XXXXXXXX'
 }

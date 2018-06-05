@@ -14,19 +14,48 @@ class Balance extends PureComponent {
 
     this.state = {
       tokenBalance: null,
-      balance: null
+      balance: null,
+      decimals: null
     }
+
+    this.mounted = false
 
     this.getBalance = this.getBalance.bind(this)
     this.getEthBalance = this.getEthBalance.bind(this)
+    this.getDecimals = this.getDecimals.bind(this)
+  }
+
+  componentWillMount() {
+    this.mounted = true
+  }
+
+  componentWillUnmount() {
+    this.mounted = false
   }
 
   componentDidMount = async () => {
-    this.getBalance()
-    this.getEthBalance()
+    await this.getBalance()
+    await this.getDecimals()
+    await this.getEthBalance()
   }
 
-  getEthBalance() {
+  getDecimals = async () => {
+    this.props.Token.deployed().then(async (crowdsale) => {
+      crowdsale.decimals.call().then((res) => {
+        if (this.mounted) {
+          this.setState({
+            decimals: res ? res.toNumber() : 'N/A'
+          })
+        }
+      })
+    })
+
+    setTimeout(() => {
+      this.getDecimals()
+    }, 2000)
+  }
+
+  getEthBalance = async () => {
     if(this.props.account != null) {
       this.props.web3.web3.eth.getBalance(this.props.account, function(err, balance) {
         if (!err) {
@@ -42,7 +71,7 @@ class Balance extends PureComponent {
     }, 2000)
   }
 
-  getBalance() {
+  getBalance = async () => {
     this.props.Token.deployed().then((crowdsale) => {
       if(this.props.account != null) {
         crowdsale.balanceOf(this.props.account).then((tokenBalance) => {
@@ -62,10 +91,10 @@ class Balance extends PureComponent {
     return (
       <Box>
         { this.state.tokenBalance !== null ? <div>
-          <Heading>Your Tokens</Heading>
+          <Heading>Your {env.TOKEN_NAME} Tokens</Heading>
           <List>
             <ListItem>
-              { this.state.tokenBalance / (10 ** env.DECIMALS) } { env.TOKEN_NAME }
+              { this.state.tokenBalance / (10 ** this.state.decimals) } { env.TOKEN_NAME }
             </ListItem>
           </List>
           </div>
