@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://identiform.com/">
+    <img alt="identiForm" src="https://github.com/Identiform/token_sale_starter/master/media/logo.png" width="683">
+  </a>
+</p>
+
 # Token Sale Starter
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
@@ -14,6 +20,8 @@ Token Sale Starter is a quick to start token sale contract and dApp with followi
 Sales through this contract/ dApp after the event should then be imported into main contract (see below).
 
 ## Why?
+
+![Token Sale Strater dApp]](media/dapp.png)
 
 We have too many repeating functions for each new contract. Why instead not to modularize everything and 
 make a contract for the just a single specific job of the major contract? Think of this project as a library-driven 

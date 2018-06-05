@@ -3,7 +3,6 @@ import { connect } from 'react-redux'
 
 import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
-import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
 
 import Async from 'components/Async'
