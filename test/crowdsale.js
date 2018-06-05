@@ -57,6 +57,7 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
 
     it('should unset whitelisting', async () => {
       const crowdsale = await Token.new();
+      await crowdsale.setWhitelisting({ from: owner, gas: 1000000 });
       await crowdsale.unsetWhitelisting({ from: owner, gas: 1000000 });
       const doWhitelisting = await crowdsale.shouldWhitelist();
       doWhitelisting.should.be.equal(false);
@@ -603,8 +604,52 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
   });
 
   describe('allowances', () => {
+    it('approve transfer', async () => {
+      const crowdsale = await Token.new();
+      const { logs } = await crowdsale.approve(investor, 1000, { from: otherInvestor });
+      logs[0].event.should.be.equal('Approval');
+      const value = await crowdsale.allowance(otherInvestor, investor);
+      value.should.be.bignumber.equal(1000);
+    });
+
+    it('increase approveal fortransfer', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.approve(investor, 1000, { from: otherInvestor });
+      await crowdsale.increaseApproval(investor, 1000, { from: otherInvestor });
+      const value = await crowdsale.allowance(otherInvestor, investor);
+      value.should.be.bignumber.equal(2000);
+    });
+
+    it('decreaase approval for transfer', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.approve(investor, 1000, { from: otherInvestor });
+      await crowdsale.decreaseApproval(investor, 100, { from: otherInvestor });
+      const value = await crowdsale.allowance(otherInvestor, investor);
+      value.should.be.bignumber.equal(900);
+    });
   });
 
   describe('transfer from', () => {
+    it('allow transfer from', async () => {
+      const spender = otherInvestor;
+      const crowdsale = await Token.new();
+      await crowdsale.approve(spender, 1000, { from: investor });
+      const value = await crowdsale.allowance(investor, spender);
+      value.should.be.bignumber.equal(1000);
+      await crowdsale.startIco({ from: owner });
+      await crowdsale.sendTransaction({ from: investor, gas: 1000000, value: ether(300) });
+      const initialBalance = await crowdsale.balanceOf(investor);
+      await crowdsale.finishIco({ from: owner });
+      const expected = initialBalance - 111;
+      const { logs } = await crowdsale.transferFrom(investor, spender, 111, { from: spender });
+      logs[0].event.should.be.equal('Transfer');
+      logs[0].args.from.should.be.equal(investor);
+      logs[0].args.to.should.be.equal(spender);
+      logs[0].args.value.toNumber().should.be.equal(111);
+      const investorBalance = await crowdsale.balanceOf(investor);
+      const spenderBalance = await crowdsale.balanceOf(spender);
+      investorBalance.toNumber().should.be.equal(expected);
+      spenderBalance.toNumber().should.be.equal(111);
+    });
   });
 });

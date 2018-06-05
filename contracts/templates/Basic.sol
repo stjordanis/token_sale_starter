@@ -37,6 +37,7 @@ contract Basic is IERC20Enhanced {
     }
 
     function transferFrom(address _from, address _to, uint _tokens) public returns (bool success) {
+        require(transfersAllowed == true);
         require(_to != address(0));
         require(_tokens <= balances[_from]);
         require(_tokens <= allowed[_from][msg.sender]);
