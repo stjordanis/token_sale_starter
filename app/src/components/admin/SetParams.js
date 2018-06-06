@@ -1,14 +1,12 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import Box from 'grommet/components/Box'
-import Form  from 'grommet/components/Form'
-
 import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
 const Input = Async(() => import('components/Input'))
 const Title = Async(() => import('components/Title'))
+const Container = Async(() => import('components/Container'))
 
 class SetParams extends Component {
   constructor() {
@@ -39,7 +37,7 @@ class SetParams extends Component {
     this.mounted = false
   }
 
-  handleChange(event) {
+  handleChange = (event) => {
     const { target } = event
     const value = target.type === 'checkbox' ? target.checked : target.value
     const { name } = target
@@ -102,7 +100,7 @@ class SetParams extends Component {
     }
   }
 
-  handleSubmit(event) {
+  handleSubmit = (event) => {
     event.preventDefault()
     this.setState({ loading: true })
 
@@ -126,17 +124,17 @@ class SetParams extends Component {
 
   render() {
     return (
-      <Box align='center'>
+      <Container>
         <Title title='Set ICO Parameters' />
-        <Form onSubmit={this.handleSubmit}>
+        <form onSubmit={this.handleSubmit}>
           <Input id='symbol' req={true} label='Symbol' handleChange={this.handleChange} />
           <Input id='name' req={true} label='Name' handleChange={this.handleChange} />
           <Input id='decimals' req={true} label='Decimals' handleChange={this.handleChange} />
           <Input id='rate' req={true} label='Rate' handleChange={this.handleChange} />
           <Submit loading={this.state.loading} label='Set' />
-        </Form>
+        </form>
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
-      </Box>
+      </Container>
     )
   }
 }

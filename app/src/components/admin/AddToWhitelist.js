@@ -2,15 +2,13 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import web3utils from 'web3-utils'
 
-import Box from 'grommet/components/Box'
-import Form  from 'grommet/components/Form'
-
 import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
 const Input = Async(() => import('components/Input'))
 const Title = Async(() => import('components/Title'))
 const Lead = Async(() => import('components/Lead'))
+const Container = Async(() => import('components/Container'))
 
 class AddToWhitelist extends Component {
   constructor() {
@@ -29,7 +27,7 @@ class AddToWhitelist extends Component {
     this.getWhitelistStatus = this.getWhitelistStatus.bind(this)
   }
 
-  handleChange = (event) => {
+  handleChange = async (event) => {
     const { target } = event
     const value = target.type === 'checkbox' ? target.checked : target.value
     const { name } = target
@@ -39,10 +37,10 @@ class AddToWhitelist extends Component {
       loading: true
     })
 
-    this.getWhitelistStatus()
+    await this.getWhitelistStatus()
   }
 
-  getWhitelistStatus() {
+  getWhitelistStatus = async () => {
     if (web3utils.isAddress(this.state.toWhitelist)) {
       this.props.Token.deployed().then((token) => {
         token.getWhitelistStatus(this.state.toWhitelist, { from: this.props.account }).then((res) => {
@@ -99,7 +97,7 @@ class AddToWhitelist extends Component {
     }
   }
 
-  handleSubmit(event) {
+  handleSubmit = (event) => {
     event.preventDefault()
 
     this.props.Token.deployed().then(async (token) => {
@@ -122,16 +120,16 @@ class AddToWhitelist extends Component {
 
   render() {
     return (
-      <Box align='center'>
+      <Container>
         <Title title='Add to Whitelist' />
-        { !this.state.status ? <Form onSubmit={this.handleSubmit}>
+        { !this.state.status ? <form onSubmit={this.handleSubmit}>
           <Input id='toWhitelist' req={true} label='Address' handleChange={this.handleChange} />
           <Submit loading={this.state.loading} label='Set' />
-        </Form>
+        </form>
         : <Lead text="This user is already whitelisted" />
         }
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
-      </Box>
+      </Container>
     )
   }
 }

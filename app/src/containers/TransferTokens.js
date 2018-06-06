@@ -2,15 +2,13 @@ import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import Web3Utils from 'web3-utils'
 
-import Box from 'grommet/components/Box'
-import Form  from 'grommet/components/Form'
-
 import Async from 'components/Async'
 import env from 'env'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
 const Input = Async(() => import('components/Input'))
 const Title = Async(() => import('components/Title'))
+const Container = Async(() => import('components/Container'))
 
 class TransferTokens extends PureComponent {
   constructor(props) {
@@ -44,7 +42,7 @@ class TransferTokens extends PureComponent {
     this.mounted = false
   }
 
-  handleChange(event) {
+  handleChange = (event) => {
     const { target } = event
     const { name } = target
 
@@ -69,7 +67,7 @@ class TransferTokens extends PureComponent {
     }, 2000)
   }
 
-  handleSubmit(event) {
+  handleSubmit = (event) => {
     event.preventDefault()
     this.setState({ loading: true })
 
@@ -130,17 +128,15 @@ class TransferTokens extends PureComponent {
 
   render() {
     return (
-      <Box>
+      <Container>
         <Title title={ `Send ${env.TOKEN_NAME} Tokens` } />
-        <Box align='center'>
-          <Form onSubmit={this.handleSubmit}>
-            <Input id='to' req={true} label='Recipient address' handleChange={this.handleChange} />
-            <Input id='amountTokens' req={true} label='Tokens to send' handleChange={this.handleChange} />
-            <Submit loading={this.state.loading} label='Send' />
-          </Form>
-        </Box>
+        <form onSubmit={this.handleSubmit}>
+          <Input id='to' req={true} label='Recipient address' handleChange={this.handleChange} />
+          <Input id='amountTokens' req={true} label='Tokens to send' handleChange={this.handleChange} />
+          <Submit loading={this.state.loading} label='Send' />
+        </form>
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
-      </Box>
+      </Container>
     )
   }
 }

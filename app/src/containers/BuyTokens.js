@@ -3,10 +3,8 @@ import { connect } from 'react-redux'
 import axios from 'axios'
 import Web3Utils from 'web3-utils'
 
-import Box from 'grommet/components/Box'
 import List from 'grommet/components/List'
 import ListItem  from 'grommet/components/ListItem'
-import Form  from 'grommet/components/Form'
 
 import Async from 'components/Async'
 import env from 'env'
@@ -15,6 +13,7 @@ const Popup = Async(() => import('components/Popup'))
 const Input = Async(() => import('components/Input'))
 const Title = Async(() => import('components/Title'))
 const Lead = Async(() => import('components/Lead'))
+const Container = Async(() => import('components/Container'))
 
 class BuyIcoTokens extends PureComponent {
   constructor(props) {
@@ -51,14 +50,14 @@ class BuyIcoTokens extends PureComponent {
     await this.getDecimals()
   }
 
-  handleChange(event) {
+  handleChange = (event) => {
     this.setState({
       amountEth: event.target.value,
       amountTokens: (this.state.rate && this.state.decimals) ? (event.target.value * this.state.rate) : 0
     })
   }
 
-  handleSubmit(event) {
+  handleSubmit = (event) => {
     event.preventDefault()
 
     this.props.Token.deployed().then(async (crowdsale) => {
@@ -168,22 +167,22 @@ class BuyIcoTokens extends PureComponent {
     )
 
     return (
-      <Box>
+      <Container>
         <Title title={`Get ${env.TOKEN_NAME} Tokens`} />
         <List>
           <ListItem>1 ETH = { this.state.priceEth } USD</ListItem>
           <ListItem>1 { env.TOKEN_NAME } = { this.state.rate ? (1 / this.state.rate).toFixed(6) : 'N/A' } ETH</ListItem>
           <ListItem>1 { env.TOKEN_NAME } = $US { this.state.rate ? (this.state.priceEth / this.state.rate).toFixed(2) : 'N/A' }</ListItem>
         </List>
-        <Box align='center'>
-          <Form onSubmit={this.handleSubmit}>
+        <Container>
+          <form onSubmit={this.handleSubmit}>
             <Input id='amountEth' req={true} label='Ethers' handleChange={this.handleChange} />
             <Lead text={changeRate} />
             <Submit loading={this.state.loading} label='Get' />
-          </Form>
-        </Box>
+          </form>
+        </Container>
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
-      </Box>
+      </Container>
     )
   }
 }

@@ -1,14 +1,12 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import Box from 'grommet/components/Box'
-import Form  from 'grommet/components/Form'
-
 import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
 const Input = Async(() => import('components/Input'))
 const Title = Async(() => import('components/Title'))
+const Container = Async(() => import('components/Container'))
 
 class TransferOwnership extends Component {
   constructor(props) {
@@ -35,7 +33,7 @@ class TransferOwnership extends Component {
     this.mounted = false
   }
 
-  handleChange(event) {
+  handleChange = (event) => {
     const { target } = event
     const { name } = target
 
@@ -81,7 +79,7 @@ class TransferOwnership extends Component {
     }
   }
 
-  handleSubmit(event) {
+  handleSubmit = (event) => {
     event.preventDefault()
 
     this.setState({
@@ -107,16 +105,16 @@ class TransferOwnership extends Component {
 
   render() {
     return (
-      <Box align='center'>
+      <Container>
         <Title title='Transfer Ownership' />
-        <Box align='center'>
-          <Form onSubmit={this.handleSubmit}>
+        <Container>
+          <form onSubmit={this.handleSubmit}>
             <Input id='to' req={true} label='New owner address' handleChange={this.handleChange} />
             <Submit loading={this.state.loading} label='Transfer' />
-          </Form>
-        </Box>
+          </form>
+        </Container>
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
-      </Box>
+      </Container>
     )
   }
 }

@@ -3,7 +3,6 @@ import { connect } from 'react-redux'
 
 import List from 'grommet/components/List'
 import Label from 'grommet/components/Label'
-import Box from 'grommet/components/Box'
 import ListItem  from 'grommet/components/ListItem'
 
 import Async from 'components/Async'
@@ -11,6 +10,7 @@ import env from 'env'
 import { icoMap } from 'utils/maps'
 const RecentTransactions = Async(() => import('components/events/RecentTransactions'))
 const Title = Async(() => import('components/Title'))
+const Container = Async(() => import('components/Container'))
 
 class CoinStats extends PureComponent {
   constructor(props) {
@@ -242,7 +242,7 @@ class CoinStats extends PureComponent {
 
   render() {
     return (
-      <Box>
+      <Container>
         <Title title='Market Info' />
         <Label></Label>
         <List>
@@ -264,7 +264,7 @@ class CoinStats extends PureComponent {
           <ListItem>ETH Raised: { this.props.web3.web3.fromWei(this.state.weiRaised, 'ether') } ETH</ListItem>
         </List>
         <RecentTransactions />
-      </Box>
+      </Container>
     )
   }
 }

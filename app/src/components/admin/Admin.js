@@ -4,14 +4,15 @@ import { connect } from 'react-redux'
 import Async from 'components/Async'
 const Title = Async(() => import('components/Title'))
 const Lead = Async(() => import('components/Lead'))
+const Container = Async(() => import('components/Container'))
 
 class Admin extends Component {
   render() {
     return (
-      <div>
+      <Container>
         <Title title="Admin Area" />
         <Lead text="This area is admins'." />
-      </div>
+      </Container>
     )
   }
 }

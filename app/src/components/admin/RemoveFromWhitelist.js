@@ -2,15 +2,13 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import web3utils from 'web3-utils'
 
-import Box from 'grommet/components/Box'
-import Form  from 'grommet/components/Form'
-
 import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
 const Input = Async(() => import('components/Input'))
 const Title = Async(() => import('components/Title'))
 const Lead = Async(() => import('components/Lead'))
+const Container = Async(() => import('components/Container'))
 
 class RemoveFromWhitelist extends Component {
   constructor() {
@@ -39,7 +37,7 @@ class RemoveFromWhitelist extends Component {
     this.mounted = false
   }
 
-  handleChange(event) {
+  handleChange = (event) => {
     const { target } = event
     const value = target.type === 'checkbox' ? target.checked : target.value
     const { name } = target
@@ -52,7 +50,7 @@ class RemoveFromWhitelist extends Component {
     this.getWhitelistStatus()
   }
 
-  getWhitelistStatus() {
+  getWhitelistStatus = () => {
     if (web3utils.isAddress(this.state.toWhitelist)) {
       this.props.Token.deployed().then((token) => {
         token.getWhitelistStatus(this.state.toWhitelist, { from: this.props.account }).then((res) => {
@@ -109,7 +107,7 @@ class RemoveFromWhitelist extends Component {
     }, 5000)
   }
 
-  handleSubmit(event) {
+  handleSubmit = (event) => {
     event.preventDefault()
 
     this.props.Token.deployed().then(async (token) => {
@@ -132,16 +130,16 @@ class RemoveFromWhitelist extends Component {
 
   render() {
     return (
-      <Box align='center'>
+      <Container>
         <Title title='Remove from whitelist' />
-        { this.state.status ? <Form onSubmit={this.handleSubmit}>
+        { this.state.status ? <form onSubmit={this.handleSubmit}>
           <Input id='toWhitelist' req={true} label='Address' handleChange={this.handleChange} />
           <Submit loading={this.state.loading} label='Set' />
-        </Form>
+        </form>
         : <Lead text="This user isn't on whitelist, nothing to do" />
         }
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
-      </Box>
+      </Container>
     )
   }
 }

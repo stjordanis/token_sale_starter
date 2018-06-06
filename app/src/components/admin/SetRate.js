@@ -1,15 +1,13 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import Box from 'grommet/components/Box'
-import Form  from 'grommet/components/Form'
-
 import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
 const Input = Async(() => import('components/Input'))
 const Title = Async(() => import('components/Title'))
 const Lead = Async(() => import('components/Lead'))
+const Container = Async(() => import('components/Container'))
 
 class SetRate extends Component {
   constructor() {
@@ -42,7 +40,7 @@ class SetRate extends Component {
     this.mounted = false
   }
 
-  handleChange(event) {
+  handleChange = (event) => {
     const { target } = event
     const value = target.type === 'checkbox' ? target.checked : target.value
     const { name } = target
@@ -105,7 +103,7 @@ class SetRate extends Component {
     }
   }
 
-  handleSubmit(event) {
+  handleSubmit = (event) => {
     event.preventDefault()
     this.setState({ loading: true })
 
@@ -129,15 +127,15 @@ class SetRate extends Component {
 
   render() {
     return (
-      <Box align='center'>
+      <Container>
         <Title title='Set Rate' />
         { this.state.rate ? <Lead text={`Current rate: ${this.state.rate}/ ETH`} /> : '' }
-        <Form onSubmit={this.handleSubmit}>
+        <form onSubmit={this.handleSubmit}>
           <Input id='newRate' req={true} label='New rate' handleChange={this.handleChange} />
           <Submit loading={this.state.loading} label='Set' />
-        </Form>
+        </form>
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
-      </Box>
+      </Container>
     )
   }
 }

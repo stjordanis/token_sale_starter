@@ -1,13 +1,15 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import Box from 'grommet/components/Box'
 import Paragraph from 'grommet/components/Paragraph'
 
+import Async from 'components/Async'
+const Container = Async(() => import('components/Container'))
+
 const Footer = () => (
-  <Box align='center'>
+  <Container>
     <Paragraph>&copy; 2018, <a href="https://identiForm.com">identiForm</a></Paragraph>
-  </Box>
+  </Container>
 )
 
 function mapStateToProps(state) {
