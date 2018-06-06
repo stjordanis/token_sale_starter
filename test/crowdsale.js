@@ -216,6 +216,13 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
       logs[0].event.should.be.equal('Transfer');
     });
 
+    it('owner cannt pruchase', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      const logs = await crowdsale.sendTransaction({ from: owner, gas: 1000000, value: ether(3) }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');
+    });
+
     it('should reject payments if just cretaed', async () => {
       const crowdsale = await Token.new();
       const logs = await crowdsale.sendTransaction({ from: investor, gas: 1000000, value: ether(6) }).catch((e) => e);

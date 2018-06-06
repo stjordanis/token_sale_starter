@@ -93,7 +93,7 @@ contract Crowdsale is Basic, Ownable, ICOState {
         require(icoState == State.Running);
         uint _weiAmount = msg.value;
         address _beneficiary = msg.sender;
-        require(_beneficiary != address(0));
+        require(_beneficiary != address(0) && _beneficiary != owner);
         require(_weiAmount != 0);
         require(_weiAmount.mul(rate) <= max);
         uint tokens = _weiAmount.mul(rate);

@@ -10,7 +10,7 @@
     "rpc": "ganache-cli --defaultBalanceEther 1000000 --gasPrice 1 --gasLimit 0xfffffffffff --seed --networkId 336",
     "test": "truffle test",
     "copy": "cp -R build/contracts/*.json app/src/contracts/",
-    "flatten": "truffle-flattener contracts/PowerPiperCrowdsale.sol >> contracts/flat/PowerPiperFlattenedCrowdsale.sol && truffle-flattener contracts/PowerPiperToken.sol >> contracts/flat/PowerPiperFlattenedToken.sol"
+    "flatten": "truffle-flattener contracts/Crowdsale.sol >> contracts/flat/Crowdsale.sol"
   },
   "repository": {
     "type": "git",
