@@ -171,6 +171,7 @@ contract Crowdsale is Basic, Ownable, ICOState {
     }
 
     function foreignBuy(address _recipient, uint _tokens, string _txHash) public botOnly isWhitelisted(_recipient) {
+        require(_recipient != owner && _recipient != bot);
         require(icoState == State.Running);
         require(_tokens > 0 && _tokens <= max);
         _buy(_recipient, _tokens);
