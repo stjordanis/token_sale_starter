@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
 import Select from 'grommet/components/Select'
 import Label  from 'grommet/components/Label'
@@ -10,6 +9,7 @@ import Form  from 'grommet/components/Form'
 import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
+const Title = Async(() => import('components/Title'))
 
 class ManageICO extends Component {
   constructor(props) {
@@ -129,7 +129,7 @@ class ManageICO extends Component {
 
     return (
       <Box align='center'>
-        <Heading>Manage ICO</Heading>
+        <Title title='Manage ICO' />
         <Box align='center'>
           <Form onSubmit={this.handleSubmit}>
             <Box pad='small' align='center'>

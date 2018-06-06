@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import Web3Utils from 'web3-utils'
 
-import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
 import Form  from 'grommet/components/Form'
 
@@ -11,6 +10,7 @@ import env from 'env'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
 const Input = Async(() => import('components/Input'))
+const Title = Async(() => import('components/Title'))
 
 class TransferTokens extends PureComponent {
   constructor(props) {
@@ -131,7 +131,7 @@ class TransferTokens extends PureComponent {
   render() {
     return (
       <Box>
-        <Heading>Send {env.TOKEN_NAME} Tokens</Heading>
+        <Title title={ `Send ${env.TOKEN_NAME} Tokens` } />
         <Box align='center'>
           <Form onSubmit={this.handleSubmit}>
             <Input id='to' req={true} label='Recipient address' handleChange={this.handleChange} />

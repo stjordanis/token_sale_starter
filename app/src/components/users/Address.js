@@ -1,18 +1,19 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import Heading from 'grommet/components/Heading'
 import List from 'grommet/components/List'
 import ListItem  from 'grommet/components/ListItem'
-import Box  from 'grommet/components/Box'
+
+import Async from 'components/Async'
+const Title = Async(() => import('components/Title'))
 
 const Address = (props) => (
-  <Box>
-    <Heading>Your Address</Heading>
+  <div>
+    <Title title='Your Address' />
     <List>
       <ListItem>{ props.account }</ListItem>
     </List>
-  </Box>
+  </div>
 )
 
 function mapStateToProps(state) {

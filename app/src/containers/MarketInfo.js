@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 
-import Heading from 'grommet/components/Heading'
 import List from 'grommet/components/List'
 import Label from 'grommet/components/Label'
 import Box from 'grommet/components/Box'
@@ -11,6 +10,7 @@ import Async from 'components/Async'
 import env from 'env'
 import { icoMap } from 'utils/maps'
 const RecentTransactions = Async(() => import('components/events/RecentTransactions'))
+const Title = Async(() => import('components/Title'))
 
 class CoinStats extends PureComponent {
   constructor(props) {
@@ -243,7 +243,7 @@ class CoinStats extends PureComponent {
   render() {
     return (
       <Box>
-        <Heading>Market Info</Heading>
+        <Title title='Market Info' />
         <Label></Label>
         <List>
           <ListItem>Symbol: {this.state.symbol}</ListItem>

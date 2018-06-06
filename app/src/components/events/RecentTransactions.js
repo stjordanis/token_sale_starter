@@ -2,14 +2,14 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 
-import Heading from 'grommet/components/Heading'
-import Box from 'grommet/components/Box'
 import Label from 'grommet/components/Label'
 import Table from 'grommet/components/Table'
 import TableHeader from 'grommet/components/TableHeader'
 import TableRow from 'grommet/components/TableRow'
 
+import Async from 'components/Async'
 import env from 'env'
+const Title = Async(() => import('components/Title'))
 
 class RecentTransactions extends Component {
   constructor(props) {
@@ -100,8 +100,8 @@ class RecentTransactions extends Component {
     ))
 
     return (
-      <Box>
-        <Heading>Recent Network Transactions</Heading>
+      <div>
+        <Title title='Recent Network Transactions' />
 
         { transactions.length
           ? <Table responsive={true}>
@@ -115,7 +115,7 @@ class RecentTransactions extends Component {
           </Table>
           : <Label>No recent transactions</Label>
         }
-      </Box>
+      </div>
     )
   }
 }

@@ -1,17 +1,17 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import Box  from 'grommet/components/Box'
-import Heading  from 'grommet/components/Heading'
-import Label  from 'grommet/components/Label'
+import Async from 'components/Async'
+const Title = Async(() => import('components/Title'))
+const Lead = Async(() => import('components/Lead'))
 
 class Admin extends Component {
   render() {
     return (
-      <Box>
-        <Heading>Admin Area</Heading>
-        <Label>This area is admins'.</Label>
-      </Box>
+      <div>
+        <Title title="Admin Area" />
+        <Lead text="This area is admins'." />
+      </div>
     )
   }
 }

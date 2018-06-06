@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 
-import Heading from 'grommet/components/Heading'
 import List from 'grommet/components/List'
 import ListItem  from 'grommet/components/ListItem'
-import Box  from 'grommet/components/Box'
 
+import Async from 'components/Async'
 import env from 'env'
+const Title = Async(() => import('components/Title'))
 
 class Balance extends PureComponent {
   constructor(props) {
@@ -89,9 +89,9 @@ class Balance extends PureComponent {
 
   render() {
     return (
-      <Box>
+      <div>
         { this.state.tokenBalance !== null ? <div>
-          <Heading>Your {env.TOKEN_NAME} Tokens</Heading>
+          <Title title={`Your ${env.TOKEN_NAME} Tokens`} />
           <List>
             <ListItem>
               { this.state.tokenBalance / (10 ** this.state.decimals) } { env.TOKEN_NAME }
@@ -101,7 +101,7 @@ class Balance extends PureComponent {
           :
           '' }
         { this.state.balance !== null ? <div>
-          <Heading>Your ETH</Heading>
+          <Title title='Your ETH' />
           <List>
             <ListItem>
               { this.state.balance } ETH
@@ -111,7 +111,7 @@ class Balance extends PureComponent {
           :
           ''
         }
-      </Box>
+      </div>
     )
   }
 }

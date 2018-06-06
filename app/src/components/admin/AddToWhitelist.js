@@ -2,15 +2,15 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import web3utils from 'web3-utils'
 
-import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
-import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
 
 import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
 const Input = Async(() => import('components/Input'))
+const Title = Async(() => import('components/Title'))
+const Lead = Async(() => import('components/Lead'))
 
 class AddToWhitelist extends Component {
   constructor() {
@@ -29,7 +29,7 @@ class AddToWhitelist extends Component {
     this.getWhitelistStatus = this.getWhitelistStatus.bind(this)
   }
 
-  handleChange(event) {
+  handleChange = (event) => {
     const { target } = event
     const value = target.type === 'checkbox' ? target.checked : target.value
     const { name } = target
@@ -123,12 +123,12 @@ class AddToWhitelist extends Component {
   render() {
     return (
       <Box align='center'>
-        <Heading>Add to Whitelist</Heading>
+        <Title title='Add to Whitelist' />
         { !this.state.status ? <Form onSubmit={this.handleSubmit}>
           <Input id='toWhitelist' req={true} label='Address' handleChange={this.handleChange} />
           <Submit loading={this.state.loading} label='Set' />
         </Form>
-        : <Label>This user is already whitelisted</Label>
+        : <Lead text="This user is already whitelisted" />
         }
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
       </Box>

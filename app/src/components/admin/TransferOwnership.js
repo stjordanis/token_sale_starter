@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
 import Form  from 'grommet/components/Form'
 
@@ -9,6 +8,7 @@ import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
 const Input = Async(() => import('components/Input'))
+const Title = Async(() => import('components/Title'))
 
 class TransferOwnership extends Component {
   constructor(props) {
@@ -108,7 +108,7 @@ class TransferOwnership extends Component {
   render() {
     return (
       <Box align='center'>
-        <Heading>Transfer Ownership</Heading>
+        <Title title='Transfer Ownership' />
         <Box align='center'>
           <Form onSubmit={this.handleSubmit}>
             <Input id='to' req={true} label='New owner address' handleChange={this.handleChange} />

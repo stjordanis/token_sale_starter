@@ -2,15 +2,15 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import web3utils from 'web3-utils'
 
-import Heading from 'grommet/components/Heading'
 import Box from 'grommet/components/Box'
-import Label  from 'grommet/components/Label'
 import Form  from 'grommet/components/Form'
 
 import Async from 'components/Async'
 const Submit = Async(() => import('components/Submit'))
 const Popup = Async(() => import('components/Popup'))
 const Input = Async(() => import('components/Input'))
+const Title = Async(() => import('components/Title'))
+const Lead = Async(() => import('components/Lead'))
 
 class RemoveFromWhitelist extends Component {
   constructor() {
@@ -133,12 +133,12 @@ class RemoveFromWhitelist extends Component {
   render() {
     return (
       <Box align='center'>
-        <Heading>Remove from whitelist</Heading>
+        <Title title='Remove from whitelist' />
         { this.state.status ? <Form onSubmit={this.handleSubmit}>
           <Input id='toWhitelist' req={true} label='Address' handleChange={this.handleChange} />
           <Submit loading={this.state.loading} label='Set' />
         </Form>
-        : <Label>This user isn't on whitelist, nothing to do.</Label>
+        : <Lead text="This user isn't on whitelist, nothing to do" />
         }
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
       </Box>

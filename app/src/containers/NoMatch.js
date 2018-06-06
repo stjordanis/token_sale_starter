@@ -1,17 +1,18 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import Heading from 'grommet/components/Heading'
 import Label from 'grommet/components/Label'
-import Box  from 'grommet/components/Box'
+
+import Async from 'components/Async'
+const Title = Async(() => import('components/Title'))
 
 const NoMatch = (props) => (
-  <Box>
-    <Heading>Not Found</Heading>
+  <div>
+    <Title title='Not Found' />
     <Label>
         Sorry, this page doesn't exist.
     </Label>    
-  </Box>
+  </div>
 )
 
 function mapStateToProps(state) {
