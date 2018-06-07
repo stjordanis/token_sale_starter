@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 import Paragraph from 'grommet/components/Paragraph'
 import Toast from 'grommet/components/Toast'
@@ -13,5 +14,10 @@ const Popup = (props) => (
     }
   </div>
 )
+
+Popup.propTypes = {
+  success: PropTypes.strring,
+  failure: PropTypes.strring
+}
 
 export default Popup

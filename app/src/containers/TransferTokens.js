@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import Web3Utils from 'web3-utils'
 
 import Async from 'components/Async'
+import Meta from 'components/Meta'
 import env from 'env'
 const Submit = Async(() => import('components/template/Submit'))
 const Popup = Async(() => import('components/template/Popup'))
@@ -30,7 +31,7 @@ class TransferTokens extends PureComponent {
     this.getDecimals = this.getDecimals.bind(this)
   }
 
-  async componentDidMount() {
+  componentDidMount = async () => {
     await this.getDecimals()
   }
 
@@ -129,6 +130,7 @@ class TransferTokens extends PureComponent {
   render() {
     return (
       <Container>
+        <Meta title='Token Transfer' />
         <Title title={ `Send ${env.TOKEN_NAME} Tokens` } />
         <form onSubmit={this.handleSubmit}>
           <Input id='to' req={true} label='Recipient address' handleChange={this.handleChange} />

@@ -18,7 +18,7 @@ class Header extends PureComponent {
     this.validateAdmin = this.validateAdmin.bind(this)
   }
 
-  async componentDidMount() {
+  componentDidMount = async () => {
     this.validateAdmin()
   }
 

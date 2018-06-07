@@ -13,7 +13,7 @@ export default function Async(imported) {
       }
     }
 
-    async componentDidMount() {
+    componentDidMount = async () => {
       const { default: component } = await imported()
 
       this.setState({
@@ -25,7 +25,7 @@ export default function Async(imported) {
     render() {
       const C = this.state.component
 
-      return C ? <C {...this.props} /> : <div align='center'><GridLoader color={'#123abc'} loading={this.state.loading} /></div>
+      return C ? <C {...this.props} /> : <span align='center'><GridLoader color={'#123abc'} loading={this.state.loading} /></span>
     }
   }
 

@@ -4,6 +4,7 @@ import axios from 'axios'
 import Web3Utils from 'web3-utils'
 
 import Async from 'components/Async'
+import Meta from 'components/Meta'
 import env from 'env'
 const Submit = Async(() => import('components/template/Submit'))
 const Popup = Async(() => import('components/template/Popup'))
@@ -168,6 +169,7 @@ class BuyIcoTokens extends PureComponent {
 
     return (
       <Container>
+        <Meta title='Get Tokens' />
         <Title title={`Get ${env.TOKEN_NAME} Tokens`} />
         <Ls data={[
           `1 ETH = ${this.state.priceEth} USD`,

@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 
 import Async from 'components/Async'
+import Meta from 'components/Meta'
 import env from 'env'
 import { icoMap } from 'utils/maps'
 const RecentTransactions = Async(() => import('components/events/RecentTransactions'))
@@ -42,17 +43,17 @@ class CoinStats extends PureComponent {
     this.getOwner = this.getOwner.bind(this)
   }
 
-  async componentDidMount() {
-    this.getSymbol()
-    this.getName()
-    this.getDecimals()
-    this.getTotalSupply()
-    this.getAddress()
-    this.getHasClosed()
-    this.getRaised()
-    this.getNetwork()
-    this.getRate()
-    this.getOwner()
+  componentDidMount = async () => {
+    await this.getSymbol()
+    await this.getName()
+    await this.getDecimals()
+    await this.getTotalSupply()
+    await this.getAddress()
+    await this.getHasClosed()
+    await this.getRaised()
+    await this.getNetwork()
+    await this.getRate()
+    await this.getOwner()
   }
 
   componentWillMount = () => {
@@ -63,11 +64,9 @@ class CoinStats extends PureComponent {
     this.mounted = false
   }
 
-  getTotalSupply() {
+  getTotalSupply = async () => {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale._totalSupply().then((supply) => {
-        console.log('supply')
-        console.log(supply.toNumber())
         this.setState({
           supply: supply ? supply.toNumber() : 'N/A'
         })
@@ -79,7 +78,7 @@ class CoinStats extends PureComponent {
     }, 2000)
   }
 
-  getOwner() {
+  getOwner = async () => {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.owner().then((res) => {
         if (this.mounted) {
@@ -95,7 +94,7 @@ class CoinStats extends PureComponent {
     }, 2000)
   }
 
-  getAddress() {
+  getAddress = async () => {
     this.props.Token.deployed().then(async (crowdsale) => {
       if (this.mounted) {
         this.setState({
@@ -109,7 +108,7 @@ class CoinStats extends PureComponent {
     }, 2000)
   }
 
-  getHasClosed() {
+  getHasClosed = async () => {
     this.props.Token.deployed().then((crowdsale) => {
       crowdsale.icoState.call().then(async (res) => {
         if (this.mounted) {
@@ -125,7 +124,7 @@ class CoinStats extends PureComponent {
     }, 2000)
   }
 
-  getRaised() {
+  getRaised = async () => {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.weiRaised.call().then((res) => {
         if (this.mounted) {
@@ -141,7 +140,7 @@ class CoinStats extends PureComponent {
     }, 2000)
   }
 
-  getSymbol() {
+  getSymbol = async () => {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.symbol.call().then((res) => {
         if (this.mounted) {
@@ -157,7 +156,7 @@ class CoinStats extends PureComponent {
     }, 2000)
   }
 
-  getName() {
+  getName = async () => {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.tokenName.call().then((res) => {
         if (this.mounted) {
@@ -173,7 +172,7 @@ class CoinStats extends PureComponent {
     }, 2000)
   }
 
-  getDecimals() {
+  getDecimals = async () => {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.decimals.call().then((res) => {
         if (this.mounted) {
@@ -189,7 +188,7 @@ class CoinStats extends PureComponent {
     }, 2000)
   }
 
-  getRate() {
+  getRate = async () => {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.rate.call().then((res) => {
         if (this.mounted) {
@@ -205,7 +204,7 @@ class CoinStats extends PureComponent {
     }, 2000)
   }
 
-  getNetwork() {
+  getNetwork = async () => {
     this.props.web3.web3.version.getNetwork(async (net) => {
       let network
       switch (net) {
@@ -241,6 +240,7 @@ class CoinStats extends PureComponent {
   render() {
     return (
       <Container>
+        <Meta title='Market Information' />
         <Title title='Market Info' />
         <Ls data={[
           { id: 0, data: `Symbol: ${this.state.symbol}` },

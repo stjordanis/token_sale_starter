@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 import Button from 'grommet/components/Button'
 import Box from 'grommet/components/Box'
@@ -10,5 +11,10 @@ const Submit = (props) => (
     }
   </Box>
 )
+
+Submit.propTypes = {
+  loading: PropTypes.bool,
+  label: PropTypes.string
+}
 
 export default Submit

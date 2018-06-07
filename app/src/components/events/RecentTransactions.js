@@ -23,7 +23,7 @@ class RecentTransactions extends Component {
     this.getDecimals = this.getDecimals.bind(this)
   }
 
-  async componentDidMount() {
+  componentDidMount = async () => {
     await this.fetchTransactions()
     await this.getDecimals()
   }

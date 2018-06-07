@@ -28,7 +28,7 @@ class SetRate extends Component {
     this.getRate = this.getRate.bind(this)
   }
 
-  async componentDidMount() {
+  componentDidMount = async () => {
     await this.getRate()
   }
 
