@@ -9,6 +9,7 @@ const Submit = Async(() => import('components/template/Submit'))
 const Popup = Async(() => import('components/template/Popup'))
 const Input = Async(() => import('components/template/Input'))
 const Title = Async(() => import('components/template/Title'))
+const Lead = Async(() => import('components/template/Lead'))
 const Container = Async(() => import('components/template/Container'))
 
 class TransferTokens extends PureComponent {
@@ -21,6 +22,7 @@ class TransferTokens extends PureComponent {
       success: '',
       failure: '',
       decimals: null,
+      status: false,
       modalOpen: false
     }
 
@@ -29,9 +31,11 @@ class TransferTokens extends PureComponent {
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.getDecimals = this.getDecimals.bind(this)
+    this.getStatus = this.getStatus.bind(this)
   }
 
   componentDidMount = async () => {
+    await this.getStatus()
     await this.getDecimals()
   }
 
@@ -50,6 +54,20 @@ class TransferTokens extends PureComponent {
     this.setState({
       [name]: target.value
     })
+  }
+
+  getStatus = async () => {
+    this.props.Token.deployed().then((crowdsale) => {
+      crowdsale.transfersAllowed.call().then(async (res) => {
+        this.setState({
+          status: res
+        })
+      })
+    })
+
+    setTimeout(() => {
+      this.getStatus()
+    }, 2000)
   }
 
   getDecimals = async () => {
@@ -132,11 +150,14 @@ class TransferTokens extends PureComponent {
       <Container>
         <Meta title='Token Transfer' />
         <Title title={ `Send ${env.TOKEN_NAME} Tokens` } />
+        { this.state.status ?
         <form onSubmit={this.handleSubmit}>
           <Input id='to' req={true} label='Recipient address' handleChange={this.handleChange} />
           <Input id='amountTokens' req={true} label='Tokens to send' handleChange={this.handleChange} />
           <Submit loading={this.state.loading} label='Send' />
         </form>
+        : <Lead text='Transfers are disabled currently' />
+        }
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
       </Container>
     )
