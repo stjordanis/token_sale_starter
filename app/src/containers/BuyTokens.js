@@ -6,6 +6,7 @@ import Web3Utils from 'web3-utils'
 import Async from 'components/Async'
 import Meta from 'components/Meta'
 import env from 'env'
+import { icoMap } from 'utils/maps'
 const Submit = Async(() => import('components/template/Submit'))
 const Popup = Async(() => import('components/template/Popup'))
 const Input = Async(() => import('components/template/Input'))
@@ -25,6 +26,7 @@ class BuyIcoTokens extends PureComponent {
       success: '',
       failure: '',
       rate: null,
+      status: null,
       modalOpen: false,
       decimals: null
     }
@@ -33,6 +35,7 @@ class BuyIcoTokens extends PureComponent {
     this.handleSubmit = this.handleSubmit.bind(this)
     this.getRate = this.getRate.bind(this)
     this.getDecimals = this.getDecimals.bind(this)
+    this.getStatus = this.getStatus.bind(this)
   }
 
   componentDidMount = async () => {
@@ -45,8 +48,24 @@ class BuyIcoTokens extends PureComponent {
     })).catch((error) => {
       this.msg(0, error)
     })
+
+    await this.getStatus()
     await this.getRate()
     await this.getDecimals()
+  }
+
+  getStatus = async () => {
+    this.props.Token.deployed().then((crowdsale) => {
+      crowdsale.icoState.call().then(async (res) => {
+        this.setState({
+          status: res ? await icoMap(res) : ''
+        })
+      })
+    })
+
+    setTimeout(() => {
+      this.getStatus()
+    }, 2000)
   }
 
   handleChange = (event) => {
@@ -172,16 +191,19 @@ class BuyIcoTokens extends PureComponent {
         <Meta title='Get Tokens' />
         <Title title={`Get ${env.TOKEN_NAME} Tokens`} />
         <Ls data={[
-          `1 ETH = ${this.state.priceEth} USD`,
-          `1 ${env.TOKEN_NAME} = ${this.state.rate ? (1 / this.state.rate).toFixed(6) : 'N/A'} ETH`,
-          `1 ${env.TOKEN_NAME} = $US ${this.state.rate ? (this.state.priceEth / this.state.rate).toFixed(2) : 'N/A' }`
+          { id: 0, data: `1 ETH = ${this.state.priceEth} USD` },
+          { id: 1, data: `1 ${env.TOKEN_NAME} = ${this.state.rate ? (1 / this.state.rate).toFixed(6) : 'N/A'} ETH` },
+          { id: 2, data: `1 ${env.TOKEN_NAME} = $US ${this.state.rate ? (this.state.priceEth / this.state.rate).toFixed(2) : 'N/A' }` }
         ]} />
         <Container>
+          { this.state.status === 'Running' ?
           <form onSubmit={this.handleSubmit}>
             <Input id='amountEth' req={true} label='Ethers' handleChange={this.handleChange} />
             <Lead text={changeRate} />
             <Submit loading={this.state.loading} label='Get' />
           </form>
+          : <Lead text={`Sale is currently ${this.state.status}`} />
+          }
         </Container>
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
       </Container>

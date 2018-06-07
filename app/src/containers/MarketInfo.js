@@ -36,7 +36,7 @@ class CoinStats extends PureComponent {
     this.getDecimals = this.getDecimals.bind(this)
     this.getTotalSupply = this.getTotalSupply.bind(this)
     this.getAddress = this.getAddress.bind(this)
-    this.getHasClosed = this.getHasClosed.bind(this)
+    this.getStatus = this.getStatus.bind(this)
     this.getRaised = this.getRaised.bind(this)
     this.getNetwork = this.getNetwork.bind(this)
     this.getRate = this.getRate.bind(this)
@@ -49,7 +49,7 @@ class CoinStats extends PureComponent {
     await this.getDecimals()
     await this.getTotalSupply()
     await this.getAddress()
-    await this.getHasClosed()
+    await this.getStatus()
     await this.getRaised()
     await this.getNetwork()
     await this.getRate()
@@ -108,7 +108,7 @@ class CoinStats extends PureComponent {
     }, 2000)
   }
 
-  getHasClosed = async () => {
+  getStatus = async () => {
     this.props.Token.deployed().then((crowdsale) => {
       crowdsale.icoState.call().then(async (res) => {
         if (this.mounted) {
@@ -120,7 +120,7 @@ class CoinStats extends PureComponent {
     })
 
     setTimeout(() => {
-      this.getHasClosed()
+      this.getStatus()
     }, 2000)
   }
 
