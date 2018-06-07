@@ -75,7 +75,7 @@ class BuyIcoTokens extends PureComponent {
           from: this.props.account,
           to: crowdsale.address,
           value:  this.props.web3.web3.toWei(this.state.amountEth, 'ether'),
-          gas: _gas,
+          gas: _gas > env.MINIMUM_GAS ? _gas : env.MINIMUM_GAS,
           gasPrice: this.props.gasPrice,
           data: '0x00'
         }, (err, receipt) => {

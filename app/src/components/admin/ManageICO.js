@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Async from 'components/Async'
+import env from 'env'
 const Submit = Async(() => import('components/template/Submit'))
 const Popup = Async(() => import('components/template/Popup'))
 const Title = Async(() => import('components/template/Title'))
@@ -54,7 +55,11 @@ class ManageICO extends Component {
 
     this.props.Token.deployed().then(async (token) => {
       const _gas = await token[this.state.action].estimateGas({ from: this.props.account })
-      token[this.state.action]({ from: this.props.account, gas: _gas, gasPrice: this.props.gasPrice }).then((receipt) => {
+      token[this.state.action]({
+        from: this.props.account,
+        gas: _gas > env.MINIMUM_GAS ? _gas : env.MINIMUM_GAS,
+        gasPrice: this.props.gasPrice
+      }).then((receipt) => {
         this.msg(1, receipt)
       }).catch((error) => {
         this.msg(0, error)

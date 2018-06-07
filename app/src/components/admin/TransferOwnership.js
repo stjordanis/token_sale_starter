@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Async from 'components/Async'
+import env from 'env'
 const Submit = Async(() => import('components/template/Submit'))
 const Popup = Async(() => import('components/template/Popup'))
 const Input = Async(() => import('components/template/Input'))
@@ -91,7 +92,9 @@ class TransferOwnership extends Component {
       if (this.state.to != null) {
         const _gas = await crowdsale.transferOwnership.estimateGas(this.state.to)
         crowdsale.transferOwnership(this.state.to, {
-          from: this.props.account, gas: _gas, gasPrice: this.props.gasPrice
+          from: this.props.account,
+          gas: _gas > env.MINIMUM_GAS ? _gas : env.MINIMUM_GAS,
+          gasPrice: this.props.gasPrice
         }).then((receipt) => {
           this.msg(1, receipt)
         }).catch((err) => {

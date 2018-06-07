@@ -77,7 +77,7 @@ class TransferTokens extends PureComponent {
         const _gas = await crowdsale.transfer.estimateGas(this.state.to, this.state.amountTokens * 10 ** this.state.decimals, { from: this.props.account })
         crowdsale.transfer(this.state.to, this.state.amountTokens * 10 ** this.state.decimals, {
           from: this.props.account,
-          gas: _gas,
+          gas: _gas > env.MINIMUM_GAS ? _gas : env.MINIMUM_GAS,
           gasPrice: this.props.gasPrice
         }).then((receipt) => {
           this.msg(1, receipt)

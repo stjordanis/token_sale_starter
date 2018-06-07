@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import web3utils from 'web3-utils'
 
 import Async from 'components/Async'
+import env from 'env'
 const Submit = Async(() => import('components/template/Submit'))
 const Popup = Async(() => import('components/template/Popup'))
 const Input = Async(() => import('components/template/Input'))
@@ -115,7 +116,7 @@ class RemoveFromWhitelist extends Component {
         const _gas = await token.removeFromWhitelist.estimateGas(this.state.toWhitelist)
         token.removeFromWhitelist(this.state.toWhitelist, {
           from: this.props.account,
-          gas: _gas,
+          gas: _gas > env.MINIMUM_GAS ? _gas : env.MINIMUM_GAS,
           gasPrice: this.props.gasPrice
         }).then((receipt) => {
           this.msg(1, receipt)
