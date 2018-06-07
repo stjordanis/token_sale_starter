@@ -4,11 +4,11 @@ import Web3Utils from 'web3-utils'
 
 import Async from 'components/Async'
 import env from 'env'
-const Submit = Async(() => import('components/Submit'))
-const Popup = Async(() => import('components/Popup'))
-const Input = Async(() => import('components/Input'))
-const Title = Async(() => import('components/Title'))
-const Container = Async(() => import('components/Container'))
+const Submit = Async(() => import('components/template/Submit'))
+const Popup = Async(() => import('components/template/Popup'))
+const Input = Async(() => import('components/template/Input'))
+const Title = Async(() => import('components/template/Title'))
+const Container = Async(() => import('components/template/Container'))
 
 class TransferTokens extends PureComponent {
   constructor(props) {
@@ -34,11 +34,11 @@ class TransferTokens extends PureComponent {
     await this.getDecimals()
   }
 
-  componentWillMount() {
+  componentWillMount = () => {
     this.mounted = true
   }
 
-  componentWillUnmount() {
+  componentWillUnmount = () => {
     this.mounted = false
   }
 

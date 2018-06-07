@@ -2,21 +2,18 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 
-import Label from 'grommet/components/Label'
-import Table from 'grommet/components/Table'
-import TableHeader from 'grommet/components/TableHeader'
-import TableRow from 'grommet/components/TableRow'
-
 import Async from 'components/Async'
 import env from 'env'
-const Title = Async(() => import('components/Title'))
+const Title = Async(() => import('components/template/Title'))
+const Lead = Async(() => import('components/template/Lead'))
+const Data = Async(() => import('components/template/Data'))
+const DataRow = Async(() => import('components/template/DataRow'))
 
 class RecentTransactions extends Component {
   constructor(props) {
     super(props)
     this.state = {
       transactions: [],
-      sortAsc: false,
       decimals: null
     }
 
@@ -31,11 +28,11 @@ class RecentTransactions extends Component {
     await this.getDecimals()
   }
 
-  componentWillMount() {
+  componentWillMount = () => {
     this.mounted = true
   }
 
-  componentWillUnmount() {
+  componentWillUnmount = () => {
     this.mounted = false
   }
 
@@ -58,62 +55,52 @@ class RecentTransactions extends Component {
   fetchTransactions = async () => {
     this.props.web3.web3.eth.getBlockNumber((latestBlock) => {
       this.props.Token.deployed().then((crowdsale) => {
-        crowdsale.allEvents({ fromBlock: 0, toBlock: 'latest' })
-          .watch((error, event) => {
-            if (error) {
-              console.log('Recent tx', error)
-            } else if (
-              (event.event === 'Transfer') && //  || event.event === 'BuyDirectEvent'
-              _.findIndex(this.state.transactions, { hash: event.transactionHash }) === -1) {
-              let updatedTransactions = this.state.transactions.slice()
-              updatedTransactions.push({
-                blockNumber: event.blockNumber,
-                hash: event.transactionHash,
-                from: event.args.from,
-                to: event.args.to,
-                amount: event.event === 'Transfer' ? event.args.value.toNumber() / 10 ** this.state.decimals : '',
-                type: event.type
-                // time: moment.unix(event.args._timestamp.toNumber()).fromNow(),
-                // unix: event.args._timestamp.toNumber(),
-              })
-              updatedTransactions = _.sortBy(updatedTransactions, 'blockNumber', 'desc')
+        crowdsale.allEvents({ fromBlock: 0, toBlock: 'latest' }).watch((error, event) => {
+          if (error) {
+            // console.log('Recent tx', error)
+          } else if (
+            (event.event === 'Transfer') && //  || event.event === 'BuyDirectEvent'
+            _.findIndex(this.state.transactions, { hash: event.transactionHash }) === -1) {
+            let updatedTransactions = this.state.transactions.slice()
+            updatedTransactions.push({
+              blockNumber: event.blockNumber,
+              hash: event.transactionHash,
+              from: event.args.from,
+              to: event.args.to,
+              amount: event.event === 'Transfer' ? event.args.value.toNumber() / 10 ** this.state.decimals : '',
+              type: event.type
+              // time: moment.unix(event.args._timestamp.toNumber()).fromNow(),
+              // unix: event.args._timestamp.toNumber(),
+            })
+            updatedTransactions = _.sortBy(updatedTransactions, 'blockNumber', 'desc')
 
-              this.setState({
-                transactions: updatedTransactions
-              })
-            }
-          })
+            this.setState({
+              transactions: updatedTransactions
+            })
+          }
+        })
       })
     })
   }
 
   render() {
     const transactions = this.state.transactions.map(transaction => (
-      <TableRow key={transaction.hash}>
+      <DataRow key={transaction.hash}>
         <td>{transaction.blockNumber}</td>
         <td>{transaction.hash.substring(0, 24)+'...'}</td>
         <td>{transaction.from === this.props.account ? `${transaction.from.substring(0, 20)}...` : `${transaction.from.substring(0, 20)}...`}</td>
         <td>{transaction.to === this.props.account ? `${transaction.to.substring(0, 20)}...` : `${transaction.to.substring(0, 20)}...`}</td>
         <td>{transaction.amount }</td>
         <td>{transaction.type}</td>
-      </TableRow>
+      </DataRow>
     ))
 
     return (
       <div>
         <Title title='Recent Network Transactions' />
-
-        { transactions.length
-          ? <Table responsive={true}>
-              <TableHeader
-                labels={['Block', 'Tx Hash', 'From', 'To', `Amount, ${env.TOKEN_NAME}`, 'Type']}
-                sortIndex={0}
-                sortAscending={this.state.sortAsc} />
-              <tbody>
-                {transactions}
-              </tbody>
-          </Table>
-          : <Label>No recent transactions</Label>
+        { transactions.length ? 
+        <Data data={transactions} labels={['Block', 'Tx Hash', 'From', 'To', `Amount, ${env.TOKEN_NAME}`, 'Type']} />
+          : <Lead text="No recent transactions" />
         }
       </div>
     )

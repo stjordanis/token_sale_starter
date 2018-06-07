@@ -1,16 +1,14 @@
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 
-import List from 'grommet/components/List'
-import Label from 'grommet/components/Label'
-import ListItem  from 'grommet/components/ListItem'
-
 import Async from 'components/Async'
 import env from 'env'
 import { icoMap } from 'utils/maps'
 const RecentTransactions = Async(() => import('components/events/RecentTransactions'))
-const Title = Async(() => import('components/Title'))
-const Container = Async(() => import('components/Container'))
+const Title = Async(() => import('components/template/Title'))
+const Lead = Async(() => import('components/template/Lead'))
+const Container = Async(() => import('components/template/Container'))
+const Ls = Async(() => import('components/template/Ls'))
 
 class CoinStats extends PureComponent {
   constructor(props) {
@@ -57,11 +55,11 @@ class CoinStats extends PureComponent {
     this.getOwner()
   }
 
-  componentWillMount() {
+  componentWillMount = () => {
     this.mounted = true
   }
 
-  componentWillUnmount() {
+  componentWillUnmount = () => {
     this.mounted = false
   }
 
@@ -244,25 +242,24 @@ class CoinStats extends PureComponent {
     return (
       <Container>
         <Title title='Market Info' />
-        <Label></Label>
-        <List>
-          <ListItem>Symbol: {this.state.symbol}</ListItem>
-          <ListItem>Token Name: {this.state.name ? this.state.name : ''}</ListItem>
-          <ListItem>Decimals: {this.state.decimals}</ListItem>
-          <ListItem>Network: {this.state.network}</ListItem>
-        </List>
-        <Label>ICO</Label>
-        <List>
-          <ListItem>Rate: {this.state.rate}</ListItem>
-          <ListItem>Crowdsale Address: {this.state.crowdsaleAddress}</ListItem>
-          <ListItem>Owner: {this.state.owner}</ListItem>
-          <ListItem>Tokens in Circulation: { this.state.supply ? (this.state.supply / 10 ** this.state.decimals) : 0} {env.TOKEN_NAME}</ListItem>
-        </List>
-        <Label>ICO status</Label>
-        <List>
-          <ListItem>Status: { this.state.status }</ListItem>
-          <ListItem>ETH Raised: { this.props.web3.web3.fromWei(this.state.weiRaised, 'ether') } ETH</ListItem>
-        </List>
+        <Ls data={[
+          { id: 0, data: `Symbol: ${this.state.symbol}` },
+          { id: 1, data: `Token Name: ${this.state.name ? this.state.name : ''}` },
+          { id: 2, data: `Decimals: ${this.state.decimals}` },
+          { id: 3, data: `Network: ${this.state.network}` }
+        ]} />
+        <Lead text="ICO" />
+        <Ls data={[
+          { id: 0, data: `Rate: ${this.state.rate}` },
+          { id: 1, data: `Crowdsale Address: ${this.state.crowdsaleAddress}` },
+          { id: 2, data: `Owner: ${this.state.owner}` },
+          { id: 3, data: `Tokens in Circulation: ${this.state.supply ? (this.state.supply / 10 ** this.state.decimals) : 0} ${env.TOKEN_NAME}` }
+        ]} />
+        <Lead text="ICO status" />
+        <Ls data={[
+          { id: 0, data: `Status: ${this.state.status}` },
+          { id: 1, data: `ETH Raised: ${this.props.web3.web3.fromWei(this.state.weiRaised, 'ether') } ETH` }
+        ]} />
         <RecentTransactions />
       </Container>
     )

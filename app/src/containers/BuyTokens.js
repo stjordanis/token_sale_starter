@@ -3,17 +3,15 @@ import { connect } from 'react-redux'
 import axios from 'axios'
 import Web3Utils from 'web3-utils'
 
-import List from 'grommet/components/List'
-import ListItem  from 'grommet/components/ListItem'
-
 import Async from 'components/Async'
 import env from 'env'
-const Submit = Async(() => import('components/Submit'))
-const Popup = Async(() => import('components/Popup'))
-const Input = Async(() => import('components/Input'))
-const Title = Async(() => import('components/Title'))
-const Lead = Async(() => import('components/Lead'))
-const Container = Async(() => import('components/Container'))
+const Submit = Async(() => import('components/template/Submit'))
+const Popup = Async(() => import('components/template/Popup'))
+const Input = Async(() => import('components/template/Input'))
+const Title = Async(() => import('components/template/Title'))
+const Lead = Async(() => import('components/template/Lead'))
+const Container = Async(() => import('components/template/Container'))
+const Ls = Async(() => import('components/template/Ls'))
 
 class BuyIcoTokens extends PureComponent {
   constructor(props) {
@@ -36,7 +34,7 @@ class BuyIcoTokens extends PureComponent {
     this.getDecimals = this.getDecimals.bind(this)
   }
 
-  async componentDidMount() {
+  componentDidMount = async () => {
     axios.all([
       axios.get('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
     ]).then(axios.spread((eth) => {
@@ -80,6 +78,8 @@ class BuyIcoTokens extends PureComponent {
           gasPrice: this.props.gasPrice,
           data: '0x00'
         }, (err, receipt) => {
+          console.log('receipt')
+          console.log(receipt)
           if (!err) {
             this.msg(1, receipt)
           } else {
@@ -118,7 +118,7 @@ class BuyIcoTokens extends PureComponent {
         this.resetToast()
         return
       case 1:
-        this.setState({ success: `Success! Your tx: ${msg.tx}` })
+        this.setState({ success: `Success! Your tx: ${msg.tx || msg}` })
         this.resetToast()
         return
       case 3:
@@ -169,11 +169,11 @@ class BuyIcoTokens extends PureComponent {
     return (
       <Container>
         <Title title={`Get ${env.TOKEN_NAME} Tokens`} />
-        <List>
-          <ListItem>1 ETH = { this.state.priceEth } USD</ListItem>
-          <ListItem>1 { env.TOKEN_NAME } = { this.state.rate ? (1 / this.state.rate).toFixed(6) : 'N/A' } ETH</ListItem>
-          <ListItem>1 { env.TOKEN_NAME } = $US { this.state.rate ? (this.state.priceEth / this.state.rate).toFixed(2) : 'N/A' }</ListItem>
-        </List>
+        <Ls data={[
+          `1 ETH = ${this.state.priceEth} USD`,
+          `1 ${env.TOKEN_NAME} = ${this.state.rate ? (1 / this.state.rate).toFixed(6) : 'N/A'} ETH`,
+          `1 ${env.TOKEN_NAME} = $US ${this.state.rate ? (this.state.priceEth / this.state.rate).toFixed(2) : 'N/A' }`
+        ]} />
         <Container>
           <form onSubmit={this.handleSubmit}>
             <Input id='amountEth' req={true} label='Ethers' handleChange={this.handleChange} />

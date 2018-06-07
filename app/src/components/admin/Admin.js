@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Async from 'components/Async'
-const Title = Async(() => import('components/Title'))
-const Lead = Async(() => import('components/Lead'))
-const Container = Async(() => import('components/Container'))
+const Title = Async(() => import('components/template/Title'))
+const Lead = Async(() => import('components/template/Lead'))
+const Container = Async(() => import('components/template/Container'))
 
 class Admin extends Component {
   render() {

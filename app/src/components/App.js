@@ -1,10 +1,6 @@
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
-
-import '../../node_modules/grommet-css'
-import App from 'grommet/components/App'
-import Box from 'grommet/components/Box'
 import ReactGA from 'react-ga'
 
 import * as actions from 'actions'
@@ -26,6 +22,8 @@ const TransferOwnership = Async(() => import('components/admin/TransferOwnership
 const SetParams = Async(() => import('components/admin/SetParams'))
 const ManageICO = Async(() => import('components/admin/ManageICO'))
 const SetRate = Async(() => import('components/admin/SetRate'))
+const Wrapper = Async(() => import('components/template/Wrapper'))
+const Container = Async(() => import('components/template/Container'))
 
 class dApp extends PureComponent {
   constructor(props) {
@@ -37,7 +35,7 @@ class dApp extends PureComponent {
     }
   }
 
-  async componentDidMount() {
+  componentDidMount = async () => {
     this.props.initWeb3()
 
     this.setState({
@@ -50,13 +48,13 @@ class dApp extends PureComponent {
     }, 2000)
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps = (nextProps) => {
     if (this.props.web3 !== nextProps.web3) {
       this.props.fetchAccount(this.props.web3)
-      this.props.fetchGasPrice(this.props.web3)
 
       if (nextProps.web3.web3Initiated) {
         this.props.initToken(nextProps.web3)
+        this.props.fetchGasPrice(this.props.web3)
       }
     }
 
@@ -67,17 +65,17 @@ class dApp extends PureComponent {
     }
   }
 
-  pageviewTracking() {
+  pageviewTracking = () => {
     ReactGA.pageview(window.location.pathName)
   }
 
   render() {
     return (
-      <App>
+      <Wrapper>
         <div>
           <BrowserRouter onUpdate={this.pageviewTracking} forceRefresh={!supportsHistory}>
             <div>
-              <Box align='center' responsive={true} pad='large'>
+              <Container>
                 <Status
                   account={this.props.account}
                   metamask={this.props.web3}
@@ -103,12 +101,12 @@ class dApp extends PureComponent {
                     </div>
                   : null
                 }
-              </Box>
+              </Container>
               <Footer />
             </div>
           </BrowserRouter>
         </div>
-      </App>
+      </Wrapper>
     )
   }
 }

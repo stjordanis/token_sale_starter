@@ -1,18 +1,14 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import List from 'grommet/components/List'
-import ListItem  from 'grommet/components/ListItem'
-
 import Async from 'components/Async'
-const Title = Async(() => import('components/Title'))
+const Title = Async(() => import('components/template/Title'))
+const Ls = Async(() => import('components/template/Ls'))
 
 const Address = (props) => (
   <div>
     <Title title='Your Address' />
-    <List>
-      <ListItem>{ props.account }</ListItem>
-    </List>
+    <Ls data={[{ id: 0, data: props.account }]} />
   </div>
 )
 

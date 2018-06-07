@@ -1,12 +1,10 @@
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 
-import List from 'grommet/components/List'
-import ListItem  from 'grommet/components/ListItem'
-
 import Async from 'components/Async'
 import env from 'env'
-const Title = Async(() => import('components/Title'))
+const Title = Async(() => import('components/template/Title'))
+const Ls = Async(() => import('components/template/Ls'))
 
 class Balance extends PureComponent {
   constructor(props) {
@@ -25,11 +23,11 @@ class Balance extends PureComponent {
     this.getDecimals = this.getDecimals.bind(this)
   }
 
-  componentWillMount() {
+  componentWillMount = () => {
     this.mounted = true
   }
 
-  componentWillUnmount() {
+  componentWillUnmount = () => {
     this.mounted = false
   }
 
@@ -88,25 +86,20 @@ class Balance extends PureComponent {
   }
 
   render() {
+    const tokenBalance = `${this.state.tokenBalance / (10 ** this.state.decimals)} ${env.TOKEN_NAME}`
+    const balance = `${this.state.balance} ETH`
+
     return (
       <div>
         { this.state.tokenBalance !== null ? <div>
           <Title title={`Your ${env.TOKEN_NAME} Tokens`} />
-          <List>
-            <ListItem>
-              { this.state.tokenBalance / (10 ** this.state.decimals) } { env.TOKEN_NAME }
-            </ListItem>
-          </List>
+          <Ls data={[{ id: 0, data: tokenBalance }]} />
           </div>
           :
           '' }
         { this.state.balance !== null ? <div>
           <Title title='Your ETH' />
-          <List>
-            <ListItem>
-              { this.state.balance } ETH
-            </ListItem>
-          </List>
+          <Ls data={[{ id: 1, data: balance }]} />
           </div>
           :
           ''

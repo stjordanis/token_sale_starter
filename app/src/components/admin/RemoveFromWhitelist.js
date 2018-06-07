@@ -3,12 +3,12 @@ import { connect } from 'react-redux'
 import web3utils from 'web3-utils'
 
 import Async from 'components/Async'
-const Submit = Async(() => import('components/Submit'))
-const Popup = Async(() => import('components/Popup'))
-const Input = Async(() => import('components/Input'))
-const Title = Async(() => import('components/Title'))
-const Lead = Async(() => import('components/Lead'))
-const Container = Async(() => import('components/Container'))
+const Submit = Async(() => import('components/template/Submit'))
+const Popup = Async(() => import('components/template/Popup'))
+const Input = Async(() => import('components/template/Input'))
+const Title = Async(() => import('components/template/Title'))
+const Lead = Async(() => import('components/template/Lead'))
+const Container = Async(() => import('components/template/Container'))
 
 class RemoveFromWhitelist extends Component {
   constructor() {
@@ -29,11 +29,11 @@ class RemoveFromWhitelist extends Component {
     this.getWhitelistStatus = this.getWhitelistStatus.bind(this)
   }
 
-  componentWillMount() {
+  componentWillMount = () => {
     this.mounted = true
   }
 
-  componentWillUnmount() {
+  componentWillUnmount = () => {
     this.mounted = false
   }
 

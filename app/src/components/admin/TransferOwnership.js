@@ -2,11 +2,11 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Async from 'components/Async'
-const Submit = Async(() => import('components/Submit'))
-const Popup = Async(() => import('components/Popup'))
-const Input = Async(() => import('components/Input'))
-const Title = Async(() => import('components/Title'))
-const Container = Async(() => import('components/Container'))
+const Submit = Async(() => import('components/template/Submit'))
+const Popup = Async(() => import('components/template/Popup'))
+const Input = Async(() => import('components/template/Input'))
+const Title = Async(() => import('components/template/Title'))
+const Container = Async(() => import('components/template/Container'))
 
 class TransferOwnership extends Component {
   constructor(props) {
@@ -25,11 +25,11 @@ class TransferOwnership extends Component {
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
-  componentWillMount() {
+  componentWillMount = () => {
     this.mounted = true
   }
 
-  componentWillUnmount() {
+  componentWillUnmount = () => {
     this.mounted = false
   }
 

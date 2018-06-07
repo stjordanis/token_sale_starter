@@ -1,15 +1,12 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import Box from 'grommet/components/Box'
-import Select from 'grommet/components/Select'
-import Label  from 'grommet/components/Label'
-
 import Async from 'components/Async'
-const Submit = Async(() => import('components/Submit'))
-const Popup = Async(() => import('components/Popup'))
-const Title = Async(() => import('components/Title'))
-const Container = Async(() => import('components/Container'))
+const Submit = Async(() => import('components/template/Submit'))
+const Popup = Async(() => import('components/template/Popup'))
+const Title = Async(() => import('components/template/Title'))
+const Container = Async(() => import('components/template/Container'))
+const SelectInput = Async(() => import('components/template/SelectInput'))
 
 class ManageICO extends Component {
   constructor(props) {
@@ -30,11 +27,11 @@ class ManageICO extends Component {
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
-  componentWillMount() {
+  componentWillMount = () => {
     this.mounted = true
   }
 
-  componentWillUnmount() {
+  componentWillUnmount = () => {
     this.mounted = false
   }
 
@@ -132,17 +129,7 @@ class ManageICO extends Component {
         <Title title='Manage ICO' />
         <Container>
           <form onSubmit={this.handleSubmit}>
-            <Box pad='small' align='center'>
-              <Label labelFor="action">Action:</Label>
-            </Box>
-            <Box pad='small' align='center'>
-            <Select
-              name='action'
-              onChange={this.handleChange}
-              value={this.state.action}
-              options={funcs}
-              placeHolder='Select an action' />
-            </Box>
+            <SelectInput id='action' action={this.state.action} label='Action' data={funcs} handleChange={this.handleChange} />
             <Submit loading={this.state.loading} label='Set' />
           </form>
         </Container>
