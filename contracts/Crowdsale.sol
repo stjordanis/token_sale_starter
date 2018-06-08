@@ -9,6 +9,10 @@ contract Crowdsale is Basic, Ownable, ICOState {
 
     using SafeMath for uint;
 
+    struct TxHash {
+        uint index;
+    }
+
     bytes32 public symbol;
     bytes32 public  tokenName;
     uint8 public decimals;
@@ -20,8 +24,10 @@ contract Crowdsale is Basic, Ownable, ICOState {
     event RunIco();
     event PauseIco();
     event FinishIco();
-    event Foreign(address _recipient, uint _tokens, string _txHash);
+    event Foreign(address _recipient, uint _tokens, bytes32 _txHash);
     uint private max = 2**256-1;
+    mapping (bytes32 => TxHash) public hashes;
+    bytes32[] public hashIndex;
 
     modifier isWhitelisted(address _beneficiary) {
         if (shouldWhitelist) {
@@ -170,11 +176,21 @@ contract Crowdsale is Basic, Ownable, ICOState {
         emit FinishIco();
     }
 
-    function foreignBuy(address _recipient, uint _tokens, string _txHash) public botOnly isWhitelisted(_recipient) {
+    function hashExists(bytes32 _hash) public view returns(bool) {
+        if (hashIndex.length == 0) {
+            return false;
+        }
+        return (hashIndex[hashes[_hash].index] == _hash);
+    }
+
+    function foreignBuy(address _recipient, uint _tokens, bytes32 _txHash) public botOnly isWhitelisted(_recipient) {
+        require(hashExists(_txHash) == false);
         require(_recipient != owner && _recipient != bot);
         require(icoState == State.Running);
         require(_tokens > 0 && _tokens <= max);
         _buy(_recipient, _tokens);
+        hashIndex.push(_txHash);
+        hashes[_txHash].index = hashIndex.length - 1;
         emit Foreign(_recipient, _tokens, _txHash);
     }
 

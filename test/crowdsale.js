@@ -465,6 +465,20 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
       const balance = await crowdsale.balanceOf(investor);
       balance.should.be.bignumber.equal(expectedTokenAmount);
     });
+
+    it('disallow duplicate foreign buy tx hashes', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      const rate = await crowdsale.rate();
+      const amount = ether(1);
+      const expectedTokenAmount = rate.mul(amount);
+      await crowdsale.setBot(otherInvestor, { from: owner })
+      const bot = await crowdsale.bot();
+      const tx = '0000000000000000002f6724320130e0bd460e97cfda6ef6b5748de931dd16af';
+      await crowdsale.foreignBuy(investor, expectedTokenAmount, tx, { from: bot });
+      const logs = await crowdsale.foreignBuy(investor, expectedTokenAmount, tx, { from: bot }).catch((e) => e);
+      logs.message.should.be.equal('VM Exception while processing transaction: revert');      
+    });
   });
 
   describe('transfers', () => {
