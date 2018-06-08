@@ -45,6 +45,15 @@ cd app
 npm start
 ```
 
+## Deploy live
+
+Edit .env, set prod = true in truffle.js, then:
+
+```
+rm -R build/
+truffle migrate --network main
+```
+
 ## Management of ICO
 
 See test/crowdsale.js for available management integration tests.
