@@ -3,5 +3,7 @@ module.exports = {
   SITE_TITLE: 'Token Starter',
   MINIMUM_CONTRIBUTION: 0.1,
   MINIMUM_GAS: 27000,
+  BTC_CONTRIBUTION_ADDRESS: 'test',
+  LTC_CONTRIBUTION_ADDRESS: 'test',
   GA: 'UA-XXXXXXXX'
 }

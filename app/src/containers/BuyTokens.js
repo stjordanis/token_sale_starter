@@ -14,6 +14,7 @@ const Title = Async(() => import('components/template/Title'))
 const Lead = Async(() => import('components/template/Lead'))
 const Container = Async(() => import('components/template/Container'))
 const Ls = Async(() => import('components/template/Ls'))
+const P = Async(() => import('components/template/P'))
 
 class BuyIcoTokens extends PureComponent {
   constructor(props) {
@@ -190,6 +191,7 @@ class BuyIcoTokens extends PureComponent {
       <Container>
         <Meta title='Get Tokens' />
         <Title title={`Get ${env.TOKEN_NAME} Tokens`} />
+        <Lead text="ETH" />
         <Ls data={[
           { id: 0, data: `1 ETH = ${this.state.priceEth} USD` },
           { id: 1, data: `1 ${env.TOKEN_NAME} = ${this.state.rate ? (1 / this.state.rate).toFixed(6) : 'N/A'} ETH` },
@@ -205,6 +207,12 @@ class BuyIcoTokens extends PureComponent {
           : <Lead text={`Sale is currently ${this.state.status}`} />
           }
         </Container>
+        <Lead text="BTC" />
+        <P>Send your contributions in BTC to the following address:</P>
+        <P>{ env.BTC_CONTRIBUTION_ADDRESS }</P>
+        <Lead text="LTC" />
+        <P>Send your contributions in LTC to the following address:</P>
+        <P>{ env.LTC_CONTRIBUTION_ADDRESS }</P>
         <Popup modalOpen={this.state.modalOpen} success={this.state.success} failure={this.state.failure} />
       </Container>
     )
