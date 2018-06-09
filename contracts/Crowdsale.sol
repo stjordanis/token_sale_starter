@@ -28,6 +28,7 @@ contract Crowdsale is Basic, Ownable, ICOState {
     uint private max = 2**256-1;
     mapping (bytes32 => TxHash) public hashes;
     bytes32[] public hashIndex;
+    bool public immediateTransfer;
 
     modifier isWhitelisted(address _beneficiary) {
         if (shouldWhitelist) {
@@ -43,6 +44,7 @@ contract Crowdsale is Basic, Ownable, ICOState {
         rate = 3;
         decimals = 18;
         transfersAllowed = false;
+        immediateTransfer = false;
     }
 
     function setParams(bytes32 _symbol, bytes32 _name, uint8 _decimals, uint _rate) public onlyOwner {
@@ -57,6 +59,16 @@ contract Crowdsale is Basic, Ownable, ICOState {
     function setRate(uint _rate) public onlyOwner {
         require(_rate > 0 && _rate <= max.div(_rate));
         rate = _rate;
+    }
+
+    function setImmediateTransfer() public onlyOwner {
+        require(immediateTransfer == false);
+        immediateTransfer = true;
+    }
+
+    function unsetImmediateTransfer() public onlyOwner {
+        require(immediateTransfer == true);
+        immediateTransfer = false;
     }
 
     function setWhitelisting() public onlyOwner {
@@ -104,7 +116,9 @@ contract Crowdsale is Basic, Ownable, ICOState {
         require(_weiAmount.mul(rate) <= max);
         uint tokens = _weiAmount.mul(rate);
         _buy(_beneficiary, tokens);
-        owner.transfer(_weiAmount);
+        if (immediateTransfer)  {
+            owner.transfer(_weiAmount);
+        }
         require(weiRaised.add(_weiAmount) <= max);
         weiRaised = weiRaised.add(_weiAmount);
         reentrancyLock = false;
@@ -143,8 +157,13 @@ contract Crowdsale is Basic, Ownable, ICOState {
         balances[_recipient] = 0;
     }
 
-    function withdraw() public onlyOwner {
+    function balance() public view returns (uint) {
+        return address(this).balance;
+    }
+
+    function withdraw() public onlyOwner returns (bool) {
         owner.transfer(address(this).balance);
+        return true;
     }
 
     function allowTransfers() public onlyOwner {

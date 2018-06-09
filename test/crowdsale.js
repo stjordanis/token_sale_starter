@@ -34,6 +34,27 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
       rate.should.be.bignumber.equal(10);
     });
 
+    it('should have default immediate transfers disabled', async () => {
+      const crowdsale = await Token.new();
+      const status = await crowdsale.immediateTransfer();
+      status.should.be.equal(false);
+    });
+
+    it('should set immediate transfers', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.setImmediateTransfer({ from: owner, gas: 1000000 });
+      const status = await crowdsale.immediateTransfer();
+      status.should.be.equal(true);
+    });
+
+    it('should unset immediate transfers', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.setImmediateTransfer({ from: owner, gas: 1000000 });
+      await crowdsale.unsetImmediateTransfer({ from: owner, gas: 1000000 });
+      const status = await crowdsale.immediateTransfer();
+      status.should.be.equal(false);
+    });
+
     it('multiple set rates', async () => {
       const crowdsale = await Token.new();
       await crowdsale.setRate(10, { from: owner, gas: 1000000 });
@@ -267,6 +288,20 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
       supply.toNumber().should.equal(expectedTokenAmount.toNumber());
       const weiRaised = await crowdsale.weiRaised();
       weiRaised.toNumber().should.equal(amount.toNumber());
+    });
+
+    it('should withdraw correct amounts', async () => {
+      const crowdsale = await Token.new();
+      await crowdsale.startIco({ from: owner });
+      const amount = ether(100);
+      await crowdsale.sendTransaction({ from: investor, value: amount });
+      const balance = (await crowdsale.balance()).toNumber() / 10 ** 18;
+      balance.should.be.equal(100);
+      const initialOwnerBalance = (await web3.eth.getBalance(owner)).toNumber() / 10 ** 18;
+      await crowdsale.withdraw();
+      const ownerBalance = (await web3.eth.getBalance(owner)).toNumber() / 10 ** 18;
+      const finalBalance = Math.round(ownerBalance - initialOwnerBalance);
+      finalBalance.should.be.equal(100);
     });
 
     it('should generate correct balances when multi purchasing', async () => {
@@ -513,7 +548,7 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
       balance.toNumber().should.be.equal(0);
     });
 
-    it('not allw to burn tokens for outsiders', async () => {
+    it('not allow to burn tokens for outsiders', async () => {
       const crowdsale = await Token.new();
       await crowdsale.startIco({ from: owner });
       const ethers = ether(100);

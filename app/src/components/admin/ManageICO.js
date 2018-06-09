@@ -126,7 +126,9 @@ class ManageICO extends Component {
       { value: 'allowTransfers', label: 'Allow transfers' },
       { value: 'disableTransfers', label: 'Disable transfers' },
       { value: 'setWhitelisting', label: 'Enable whitelsiitng requirement' },
-      { value: 'unsetWhitelisting', label: 'Disable whitelisting requirement' }
+      { value: 'unsetWhitelisting', label: 'Disable whitelisting requirement' },
+      { value: 'setImmediateTransfer', label: 'Set immediate transfer' },
+      { value: 'unsetImmediateTransfer', label: 'Unset immediate transfer' }
     ]
 
     return (
