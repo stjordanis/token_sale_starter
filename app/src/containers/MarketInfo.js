@@ -208,20 +208,23 @@ class CoinStats extends PureComponent {
     this.props.web3.web3.version.getNetwork(async (net) => {
       let network
       switch (net) {
-        case '1':
+        case 1:
           network = 'MainNet'
           break
-        case '2':
+        case 2:
           network = 'Morden (deprecated)'
           break
-        case '3':
+        case 3:
           network = 'Ropsten Test Network'
           break
-        case '4':
+        case 4:
           network = 'Rinkeby Test Network'
           break
-        case '42':
+        case 42:
           network = 'Kovan Test Network'
+          break
+        case null:
+          network = ''
           break
         default:
           network = 'Local network'

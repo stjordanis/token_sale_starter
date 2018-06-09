@@ -6,7 +6,7 @@ import ListItem  from 'grommet/components/ListItem'
 
 const Ls = (props) => (
   <List>
-    { props.data.map((el) => <ListItem id={el.id}>{ el.data }</ListItem>) }
+    { props.data.map((el) => <ListItem key={el.id}>{ el.data }</ListItem>) }
   </List>
 )
 

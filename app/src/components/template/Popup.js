@@ -16,8 +16,8 @@ const Popup = (props) => (
 )
 
 Popup.propTypes = {
-  success: PropTypes.strring,
-  failure: PropTypes.strring
+  success: PropTypes.string,
+  failure: PropTypes.string
 }
 
 export default Popup
