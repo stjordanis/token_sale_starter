@@ -2,7 +2,7 @@ require('babel-register')
 require('babel-polyfill')
 const chalk = require('chalk')
 const prod = false
-const envLoc = prod ? '../.env' : '../.env'
+const envLoc = prod ? '../.env' : '../.env.sample'
 require('dotenv').config({ path: envLoc })
 const assert = require('assert')
 const Web3 = require('web3')

@@ -237,7 +237,7 @@ contract('Crowdsale', ([owner, wallet, investor, otherInvestor]) => {
       logs[0].event.should.be.equal('Transfer');
     });
 
-    it('owner cannt pruchase', async () => {
+    it('owner cannt purchase', async () => {
       const crowdsale = await Token.new();
       await crowdsale.startIco({ from: owner });
       const logs = await crowdsale.sendTransaction({ from: owner, gas: 1000000, value: ether(3) }).catch((e) => e);

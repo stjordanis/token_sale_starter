@@ -25,8 +25,7 @@ class CoinStats extends PureComponent {
       name: null,
       symbol: null,
       decimals: null,
-      rate: null,
-      bonusRate: null
+      rate: null
     }
 
     this.mounted = false

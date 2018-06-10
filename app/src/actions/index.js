@@ -1,6 +1,7 @@
 import contract from 'truffle-contract'
 
 import Token from '../contracts/Crowdsale.json'
+// const Eth = require('ethjs')
 
 export function initWeb3() {
   const { web3 } = window

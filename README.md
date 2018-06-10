@@ -82,6 +82,7 @@ truffle test
 1. Deploy contract.
 2. Launch the dApp and set the crowdsale parameters.
 3. Set the whitelisting requirement (if so, you'll need to add each buyer to whitelist before the sale).
+4. Manage ICO -> Start ICO.
 
 ## Buys from other blockchains
 
