@@ -27,6 +27,10 @@ We have too many repeating functions for each new contract. Why instead not to m
 make a contract for the just a single specific job of the major contract? Think of this project as a library-driven 
 development for business processes. This one is meant to do simple task - you fill the token details (what you're selling) and requirements into dApp and get running own ICO site without touching the code.
 
+## Need your own contract/ dApp?
+
+Write info@talaikis.com
+
 ## Live demo
 
 User-side demo can be found [here](https://sales.identiform.com/).
