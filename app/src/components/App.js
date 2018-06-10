@@ -22,6 +22,7 @@ const TransferOwnership = Async(() => import('components/admin/TransferOwnership
 const SetParams = Async(() => import('components/admin/SetParams'))
 const ManageICO = Async(() => import('components/admin/ManageICO'))
 const SetRate = Async(() => import('components/admin/SetRate'))
+const Withdraw = Async(() => import('components/admin/Withdraw'))
 const Wrapper = Async(() => import('components/template/Wrapper'))
 const Container = Async(() => import('components/template/Container'))
 
@@ -97,6 +98,7 @@ class dApp extends PureComponent {
                       <Route exact strict sensitive path='/transfer_ownership' component={TransferOwnership} />
                       <Route exact strict sensitive path='/whitelist_remove' component={RemoveFromWhitelist} />
                       <Route exact strict sensitive path='/whitelist_add' component={AddToWhitelist} />
+                      <Route exact strict sensitive path='/withdraw' component={Withdraw} />
                       </Switch>
                     </div>
                   : null

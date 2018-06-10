@@ -63,6 +63,9 @@ class Header extends PureComponent {
                 <Tab title='Manage'>
                   { this.redirect('/manage') }
                 </Tab>
+                <Tab title='Withdraw'>
+                  { this.redirect('/withdraw') }
+                </Tab>
                 <Tab title='Rate'>
                   { this.redirect('/rate') }
                 </Tab>
