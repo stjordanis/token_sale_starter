@@ -37,9 +37,17 @@ class BuyIcoTokens extends PureComponent {
     this.getRate = this.getRate.bind(this)
     this.getDecimals = this.getDecimals.bind(this)
     this.getStatus = this.getStatus.bind(this)
+    this.getETH = this.getETH.bind(this)
   }
 
   componentDidMount = async () => {
+    await this.getETH()
+    await this.getStatus()
+    await this.getRate()
+    await this.getDecimals()
+  }
+
+  getETH = async () => {
     axios.all([
       axios.get('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
     ]).then(axios.spread((eth) => {
@@ -49,10 +57,6 @@ class BuyIcoTokens extends PureComponent {
     })).catch((error) => {
       this.msg(0, error)
     })
-
-    await this.getStatus()
-    await this.getRate()
-    await this.getDecimals()
   }
 
   getStatus = async () => {
@@ -155,7 +159,7 @@ class BuyIcoTokens extends PureComponent {
     this.props.Token.deployed().then(async (crowdsale) => {
       crowdsale.rate.call().then((res) => {
         this.setState({
-          rate: res.toNumber()
+          rate: res ? res.toNumber() : null
         })
       })
     })
@@ -193,9 +197,9 @@ class BuyIcoTokens extends PureComponent {
         <Title title={`Get ${env.TOKEN_NAME} Tokens`} />
         <Lead text="ETH" />
         <Ls data={[
-          { id: 0, data: `1 ETH = ${this.state.priceEth} USD` },
+          { id: 0, data: `1 ETH = ${this.state.priceEth ? this.state.priceEth : 0} USD` },
           { id: 1, data: `1 ${env.TOKEN_NAME} = ${this.state.rate ? (1 / this.state.rate).toFixed(6) : 'N/A'} ETH` },
-          { id: 2, data: `1 ${env.TOKEN_NAME} = $US ${this.state.rate ? (this.state.priceEth / this.state.rate).toFixed(2) : 'N/A' }` }
+          { id: 2, data: `1 ${env.TOKEN_NAME} = $US ${this.state.rate && this.state.priceEth ? (this.state.priceEth / this.state.rate).toFixed(2) : 'N/A' }` }
         ]} />
         <Container>
           { this.state.status === 'Running' ?
